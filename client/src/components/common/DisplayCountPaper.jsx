@@ -1,4 +1,4 @@
-import { Box, Icon, Paper, Typography } from '@mui/material';
+import { Box, Paper, Typography } from '@mui/material';
 import React from 'react';
 
 const DisplayCountPaper = ({ pending, count, title, icon, bgColor }) => {
