@@ -31,11 +31,12 @@ app.get("*", function (req, res) {
   res.sendFile(path.join(__dirname, "../client/build/index.html"));
 });
 
+mongoose.set('strictQuery', true);
+
 mongoose
 	.connect(process.env.ATLAS_URL, {
 		useNewUrlParser: true,
 		useUnifiedTopology: true,
-		useStrictQuery: true,
 	})
 	.then(() => {
 		app.listen(port, () => {
