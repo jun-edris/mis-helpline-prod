@@ -1,27 +1,27 @@
 {
-	"name": "mis-helpline",
-	"version": "1.0.0",
-	"description": "MIS Helpline",
-	"main": "index.js",
-	"scripts": {
-		"start": "cd ./src && node index.js",
-		"build": "yarn install && cd ./client && yarn install && yarn run build"
-	},
-	"author": "Junaire Edris Buico",
-	"license": "ISC",
-	"dependencies": {
-		"bcryptjs": "^2.4.3",
-		"cookie-parser": "^1.4.6",
-		"cors": "^2.8.5",
-		"dotenv": "^16.4.7",
-		"express": "^4.21.2",
-		"express-jwt": "^8.4.1",
-		"express-rate-limit": "^7.5.0",
-		"helmet": "^8.0.0",
-		"jsonwebtoken": "^9.0.2",
-		"jwt-decode": "^4.0.0",
-		"mongoose": "^8.10.1",
-		"nodemailer": "^6.9.16",
-		"pusher": "^5.2.0"
-	}
+  "name": "mis-helpline",
+  "version": "1.0.0",
+  "description": "MIS Helpline",
+  "main": "index.js",
+  "scripts": {
+    "start": "cd ./src && node index.js",
+    "build": "yarn install && cd ./client && yarn install && yarn run build"
+  },
+  "author": "Junaire Edris Buico",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "express-jwt": "^8.4.1",
+    "express-rate-limit": "^8.3.2",
+    "helmet": "^8.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "jwt-decode": "^4.0.0",
+    "mongoose": "^8.10.1",
+    "nodemailer": "^6.9.16",
+    "pusher": "^5.2.0"
+  }
 }
