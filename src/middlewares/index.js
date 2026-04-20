@@ -1,9 +1,5 @@
-const express = require('express');
-const cors = require('cors');
-const jwt = require('express-jwt');
-const jwtDecode = require('jwt-decode');
-const app = express();
-app.use(cors());
+const { expressjwt } = require('express-jwt');
+const { jwtDecode } = require('jwt-decode');
 
 exports.attachUser = (req, res, next) => {
 	const token = req.cookies.token;
@@ -74,7 +70,7 @@ exports.requireAuthenticated = (req, res, next) => {
 	next();
 };
 
-exports.checkJwt = jwt({
+exports.checkJwt = expressjwt({
 	secret: process.env.JWT_SECRET_KEY,
 	algorithms: ['HS256'],
 	issuer: 'api.mishelpline',

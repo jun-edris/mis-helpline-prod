@@ -16,7 +16,8 @@ export const studentSignupSchema = Yup.object().shape({
 	email: Yup.string().email('Invalid email').required('Email is required'),
 	password: Yup.string().required('Password is required'),
 	confirmPassword: Yup.string()
-		.oneOf([Yup.ref('password'), null], 'Passwords must match')
+		.nullable()
+		.oneOf([Yup.ref('password')], 'Passwords must match')
 		.required('Confirm your password'),
 });
 
@@ -35,7 +36,8 @@ export const facultySignupSchema = Yup.object().shape({
 	office: Yup.string().min(5, 'Must be at least 5 characters'),
 	password: Yup.string().required('Password is required'),
 	confirmPassword: Yup.string()
-		.oneOf([Yup.ref('password'), null], 'Passwords must match')
+		.nullable()
+		.oneOf([Yup.ref('password')], 'Passwords must match')
 		.required('Confirm your password'),
 });
 
@@ -53,7 +55,8 @@ export const staffSignupSchema = Yup.object().shape({
 		.required('Office name is required'),
 	password: Yup.string().required('Password is required'),
 	confirmPassword: Yup.string()
-		.oneOf([Yup.ref('password'), null], 'Passwords must match')
+		.nullable()
+		.oneOf([Yup.ref('password')], 'Passwords must match')
 		.required('Confirm your password'),
 });
 
@@ -73,5 +76,5 @@ export const approveRequestSchema = Yup.object().shape({
 });
 
 export const rejectRequestSchema = Yup.object().shape({
-	reason: Yup.string().required('Personel is required'),
+	reason: Yup.string().required('Reason is required'),
 });

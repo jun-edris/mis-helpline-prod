@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useState } from 'react';
 import axios from 'axios';
 import { AuthContext } from './AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -8,61 +8,34 @@ const FetchContext = createContext();
 const { Provider } = FetchContext;
 
 const FetchProvider = ({ children }) => {
-	const [refreshKey, setRefreshKey] = useState(0);
 	const history = useNavigate();
 	const authContext = useContext(AuthContext);
+	const [refreshKey, setRefreshKey] = useState(0);
 
 	const authAxios = axios.create({
-		baseURL: baseURL,
+		baseURL,
 		withCredentials: true,
-		credentials: 'include',
 		headers: {
-			'Access-Control-Allow-Credentials': true,
 			'Content-Type': 'application/json',
 		},
 	});
 
 	authAxios.interceptors.response.use(null, async (error) => {
-		if (error.response.status === 401) {
+		const status = error.response?.status;
+		if (status === 401 || status === 403) {
 			try {
 				await authAxios.get('/logout');
 				authContext.logout();
 				history('/', { replace: true });
-			} catch (error) {
-				console.log(error?.response?.message);
+			} catch {
+				// logout best-effort
 			}
 		}
-		if (error.response.status === 403) {
-			try {
-				await authAxios.get('/logout');
-				authContext.logout();
-				history('/', { replace: true });
-			} catch (error) {
-				console.log(error?.response?.message);
-			}
-		}
-
-		return error;
+		return Promise.reject(error);
 	});
 
-	const resetKey = () => {
-		setInterval(setRefreshKey(refreshKey + 1), 500);
-		setInterval(setRefreshKey(0), 10000);
-	};
-
-	useEffect(() => {
-		resetKey();
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
-
 	return (
-		<Provider
-			value={{
-				authAxios,
-				setRefreshKey,
-				refreshKey,
-			}}
-		>
+		<Provider value={{ authAxios, refreshKey, setRefreshKey }}>
 			{children}
 		</Provider>
 	);

@@ -1,16 +1,10 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const Pusher = require('pusher');
-// const nodemailer = require('nodemailer');
 
 const createToken = (user) => {
-	// Sign the JWT
-	if (!user.role) {
-		throw new Error('No user role specified');
-	}
-	if (!user._id) {
-		throw new Error('No user id specified');
-	}
+	if (!user.role) throw new Error('No user role specified');
+	if (!user._id) throw new Error('No user id specified');
 
 	return jwt.sign(
 		{
@@ -27,21 +21,9 @@ const createToken = (user) => {
 	);
 };
 
-const hashPassword = (password) => {
-	return new Promise((resolve, reject) => {
-		// Generate a salt at level 12 strength
-		bcrypt.genSalt(12, (err, salt) => {
-			if (err) {
-				reject(err);
-			}
-			bcrypt.hash(password, salt, (err, hash) => {
-				if (err) {
-					reject(err);
-				}
-				resolve(hash);
-			});
-		});
-	});
+const hashPassword = async (password) => {
+	const salt = await bcrypt.genSalt(12);
+	return bcrypt.hash(password, salt);
 };
 
 const verifyPassword = (passwordAttempt, hashedPassword) => {
@@ -56,21 +38,4 @@ const pusher = new Pusher({
 	useTLS: true,
 });
 
-// const transporter = nodemailer.createTransport({
-// 	host: 'smtp.gmail.com',
-// 	port: 465,
-// 	secure: true,
-// 	requireTLS: true,
-// 	auth: {
-// 		user: process.env.MAIL_USER,
-// 		pass: process.env.MAIL_PASS,
-// 	},
-// });
-
-module.exports = {
-	createToken,
-	hashPassword,
-	verifyPassword,
-	pusher,
-	// transporter
-};
+module.exports = { createToken, hashPassword, verifyPassword, pusher };
