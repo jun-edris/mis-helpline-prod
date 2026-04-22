@@ -160,6 +160,6 @@ router.delete(
 	requireAuthenticated,
 	cancelRequest
 );
-router.get('/logout', logout);
+router.post('/logout', logout);
 
 module.exports = router;

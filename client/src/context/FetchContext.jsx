@@ -24,7 +24,7 @@ const FetchProvider = ({ children }) => {
 		const status = error.response?.status;
 		if (status === 401 || status === 403) {
 			try {
-				await authAxios.get('/logout');
+				await authAxios.post('/logout');
 				authContext.logout();
 				history('/', { replace: true });
 			} catch {

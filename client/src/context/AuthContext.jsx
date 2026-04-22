@@ -8,13 +8,13 @@ const AuthProvider = ({ children }) => {
 	const userInfo = localStorage.getItem('userInfo');
 	const expiresAt = localStorage.getItem('expiresAt');
 
-	const pusher = new Pusher(process.env.REACT_APP_APP_KEY, {
-		cluster: process.env.REACT_APP_CLUSTER,
+	const pusher = new Pusher(import.meta.env.VITE_APP_KEY, {
+		cluster: import.meta.env.VITE_CLUSTER,
 	});
 
 	const [authState, setAuthState] = useState({
 		token: null,
-		expiresAt,
+		expiresAt: expiresAt ? Number(expiresAt) : null,
 		userInfo: userInfo ? JSON.parse(userInfo) : {},
 	});
 
@@ -23,7 +23,7 @@ const AuthProvider = ({ children }) => {
 		localStorage.setItem('expiresAt', expiresAt);
 		setAuthState({
 			userInfo,
-			expiresAt,
+			expiresAt: Number(expiresAt),
 		});
 	};
 
@@ -38,8 +38,10 @@ const AuthProvider = ({ children }) => {
 		});
 	};
 
-	const isAuthenticated = () =>
-		new Date().getTime() / 1000 < authState.expiresAt;
+	const isAuthenticated = () => {
+		if (!authState.expiresAt) return false;
+		return new Date().getTime() / 1000 < authState.expiresAt;
+	};
 
 	const isSuperAdmin = () => authState.userInfo.role === 'superAdmin';
 	const isAdmin = () => authState.userInfo.role === 'admin';

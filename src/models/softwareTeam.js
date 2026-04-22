@@ -13,4 +13,4 @@ const SoftwareTeamSchema = new mongoose.Schema(
 	{ timestamps: true }
 );
 
-module.exports = mongoose.model('sofware-team', SoftwareTeamSchema);
+module.exports = mongoose.model('software-team', SoftwareTeamSchema);

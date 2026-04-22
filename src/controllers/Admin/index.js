@@ -14,7 +14,8 @@ exports.completeReq = async (req, res) => {
 
 		pusher.trigger('request', 'updated', completed);
 		res.status(200).json({ message: 'A request has been completed!' });
-	} catch {
-		res.status(400).json({ message: 'Error completing the request' });
+	} catch (error) {
+		console.error('completeReq:', error.message);
+		res.status(500).json({ message: 'Error completing the request' });
 	}
 };
