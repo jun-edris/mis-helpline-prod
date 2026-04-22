@@ -26,7 +26,23 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS
 	? process.env.ALLOWED_ORIGINS.split(',')
 	: ['http://localhost:3000'];
 
-app.use(helmet());
+app.use(helmet({
+	contentSecurityPolicy: {
+		directives: {
+			defaultSrc: ["'self'"],
+			connectSrc: [
+				"'self'",
+				'https://*.pusher.com',
+				'wss://*.pusher.com',
+				'https://*.sockjs.org',
+			],
+			scriptSrc: ["'self'", "'unsafe-inline'"],
+			styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+			fontSrc: ["'self'", 'https://fonts.gstatic.com'],
+			imgSrc: ["'self'", 'data:', 'blob:'],
+		},
+	},
+}));
 app.use(cors({
 	origin: allowedOrigins,
 	credentials: true,
