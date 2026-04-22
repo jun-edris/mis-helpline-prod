@@ -2,7 +2,7 @@ import { createTheme } from '@mui/material/styles';
 
 const customTheme = createTheme({
 	palette: {
-		type: 'light',
+		mode: 'light',
 		primary: {
 			main: '#192a56',
 			contrastText: 'rgba(255,255,255,0.87)',
