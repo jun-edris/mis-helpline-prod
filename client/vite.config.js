@@ -7,11 +7,6 @@ export default defineConfig({
 			include: '**/*.{js,jsx}',
 		}),
 	],
-	resolve: {
-		alias: {
-			'@mui/styled-engine': '@mui/styled-engine-sc',
-		},
-	},
 	server: {
 		port: 3000,
 	},
