@@ -23,7 +23,6 @@ const Pending = () => {
 		fetchContext.authAxios
 			.get(`/requests/pending`)
 			.then(({ data }) => {
-				// console.log(data);
 				setRecords(data.requests);
 			})
 			.catch((error) => {
@@ -100,7 +99,7 @@ const Pending = () => {
 										<TableCell>{`${record?.user?.firstName} ${record?.user?.lastName}`}</TableCell>
 										<TableCell>{record?.title}</TableCell>
 										<TableCell>{record?.reqType}</TableCell>
-										<TableCell>{`${record?.personel?.firstName} ${record?.personel?.lastName}`}</TableCell>
+										<TableCell>{`${record?.personnel?.firstName} ${record?.personnel?.lastName}`}</TableCell>
 									</TableRow>
 								);
 							})}

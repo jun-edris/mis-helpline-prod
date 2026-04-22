@@ -164,11 +164,11 @@ exports.deleteMember = async (req, res) => {
 
 exports.approveReq = async (req, res) => {
 	try {
-		const { personel } = req.body;
+		const { personnel } = req.body;
 
 		const approvedReq = await Request.findByIdAndUpdate(
 			req.params.id,
-			{ approved: true, pending: true, personel },
+			{ approved: true, pending: true, personnel },
 			{ new: true }
 		);
 

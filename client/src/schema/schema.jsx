@@ -72,7 +72,7 @@ export const teamSchema = Yup.object().shape({
 });
 
 export const approveRequestSchema = Yup.object().shape({
-	personel: Yup.string().required('Personel is required'),
+	personnel: Yup.string().required('Personnel is required'),
 });
 
 export const rejectRequestSchema = Yup.object().shape({

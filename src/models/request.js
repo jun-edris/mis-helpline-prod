@@ -26,13 +26,13 @@ const RequestSchema = new mongoose.Schema(
 		completed: { type: Boolean, default: false },
 		pending: { type: Boolean, default: false },
 		reason: { type: String, trim: true },
-		personel: { type: mongoose.Schema.Types.ObjectId, ref: 'user' },
+		personnel: { type: mongoose.Schema.Types.ObjectId, ref: 'user' },
 	},
 	{ timestamps: true }
 );
 
 RequestSchema.index({ user: 1 });
-RequestSchema.index({ personel: 1 });
+RequestSchema.index({ personnel: 1 });
 RequestSchema.index({ pending: 1 });
 RequestSchema.index({ approved: 1 });
 RequestSchema.index({ rejected: 1 });

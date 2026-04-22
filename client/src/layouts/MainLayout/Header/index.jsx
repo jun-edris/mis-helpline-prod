@@ -58,7 +58,7 @@ const Header = () => {
 
 	const handleLogOut = async () => {
 		try {
-			await fetchContext.authAxios.get('/logout');
+			await fetchContext.authAxios.post('/logout');
 			authContext.logout();
 			history('/');
 		} catch (error) {

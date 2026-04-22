@@ -35,26 +35,28 @@ const rejectColor = red[900];
 
 const Dashboard = () => {
 	const fetchContext = useContext(FetchContext);
-	const [reqCount, setReqCount] = useState(0);
-	const [approveReqCount, setApproveReqCount] = useState(0);
-	const [completeReqCount, setCompleteReqCount] = useState(0);
-	const [rejectedReqCount, setRejectedReqCount] = useState(0);
-	const [pendingReqCount, setPendingReqCount] = useState(0);
-	const [dataCount, setDataCount] = useState(0);
-	const [softwareCount, setSoftwareCount] = useState(0);
-	const [hardwareCount, setHardwareCount] = useState(0);
-	const [networkCount, setNetworkCount] = useState(0);
-	const [otherCount, setOtherCount] = useState(0);
+	const [counts, setCounts] = useState({
+		total: 0,
+		approved: 0,
+		completed: 0,
+		rejected: 0,
+		pending: 0,
+		data: 0,
+		software: 0,
+		hardware: 0,
+		network: 0,
+		other: 0,
+	});
 
-	let chart = {
+	const chart = {
 		series: [
 			{
 				data: [
-					dataCount,
-					softwareCount,
-					hardwareCount,
-					networkCount,
-					otherCount,
+					counts.data,
+					counts.software,
+					counts.hardware,
+					counts.network,
+					counts.other,
 				],
 			},
 		],
@@ -88,128 +90,11 @@ const Dashboard = () => {
 		},
 	};
 
-	const getApproveReqCount = () => {
-		fetchContext.authAxios
-			.get(`/requests/count/approve`)
-			.then(({ data }) => {
-				setApproveReqCount(data.requests);
-			})
-			.catch((error) => {
-				console.log(error);
-			});
-	};
-
-	const getReqCount = () => {
-		fetchContext.authAxios
-			.get(`/requests/count`)
-			.then(({ data }) => {
-				setReqCount(data.requests);
-			})
-			.catch((error) => {
-				console.log(error);
-			});
-	};
-
-	const getCompleteReqCount = () => {
-		fetchContext.authAxios
-			.get(`/requests/count/complete`)
-			.then(({ data }) => {
-				setCompleteReqCount(data.requests);
-			})
-			.catch((error) => {
-				console.log(error);
-			});
-	};
-
-	const getRejectedReqCount = () => {
-		fetchContext.authAxios
-			.get(`/requests/count/rejected`)
-			.then(({ data }) => {
-				setRejectedReqCount(data.requests);
-			})
-			.catch((error) => {
-				console.log(error);
-			});
-	};
-
-	const getPendingReqCount = () => {
-		fetchContext.authAxios
-			.get(`/requests/count/pending`)
-			.then(({ data }) => {
-				setPendingReqCount(data.requests);
-			})
-			.catch((error) => {
-				console.log(error);
-			});
-	};
-
-	const getDataReqCount = () => {
-		fetchContext.authAxios
-			.get(`/requests/count/data`)
-			.then(({ data }) => {
-				setDataCount(data.requests);
-			})
-			.catch((error) => {
-				console.log(error);
-			});
-	};
-
-	const getSoftwareReqCount = () => {
-		fetchContext.authAxios
-			.get(`/requests/count/software`)
-			.then(({ data }) => {
-				setSoftwareCount(data.requests);
-			})
-			.catch((error) => {
-				console.log(error);
-			});
-	};
-
-	const getHardwareReqCount = () => {
-		fetchContext.authAxios
-			.get(`/requests/count/hardware`)
-			.then(({ data }) => {
-				setHardwareCount(data.requests);
-			})
-			.catch((error) => {
-				console.log(error);
-			});
-	};
-
-	const getNetworkReqCount = () => {
-		fetchContext.authAxios
-			.get(`/requests/count/network`)
-			.then(({ data }) => {
-				setNetworkCount(data.requests);
-			})
-			.catch((error) => {
-				console.log(error);
-			});
-	};
-
-	const getOtherReqCount = () => {
-		fetchContext.authAxios
-			.get(`/requests/count/other`)
-			.then(({ data }) => {
-				setOtherCount(data.requests);
-			})
-			.catch((error) => {
-				console.log(error);
-			});
-	};
-
 	useEffect(() => {
-		getReqCount();
-		getApproveReqCount();
-		getCompleteReqCount();
-		getRejectedReqCount();
-		getPendingReqCount();
-		getDataReqCount();
-		getSoftwareReqCount();
-		getHardwareReqCount();
-		getNetworkReqCount();
-		getOtherReqCount();
-		// eslint-disable-next-line react-hooks/exhaustive-deps
+		fetchContext.authAxios
+			.get('/requests/counts')
+			.then(({ data }) => setCounts(data))
+			.catch((error) => console.log(error));
 	}, [fetchContext.refreshKey]);
 
 	return (
@@ -222,7 +107,7 @@ const Dashboard = () => {
 							<DisplayCountPaper
 								pending="true"
 								title="Pending Requests"
-								count={pendingReqCount}
+								count={counts.pending}
 								icon={
 									<PendingActionsIcon
 										sx={{
@@ -243,7 +128,7 @@ const Dashboard = () => {
 								<Grid item xs={12} sm={12} md={4}>
 									<DisplayCountPaper
 										title="Data Requests"
-										count={dataCount}
+										count={counts.data}
 										icon={
 											<PendingActionsIcon
 												sx={{
@@ -262,7 +147,7 @@ const Dashboard = () => {
 								<Grid item xs={12} sm={12} md={4}>
 									<DisplayCountPaper
 										title="Software Requests"
-										count={softwareCount}
+										count={counts.software}
 										icon={
 											<PendingActionsIcon
 												sx={{
@@ -281,7 +166,7 @@ const Dashboard = () => {
 								<Grid item xs={12} sm={12} md={4}>
 									<DisplayCountPaper
 										title="Hardware Requests"
-										count={hardwareCount}
+										count={counts.hardware}
 										icon={
 											<PendingActionsIcon
 												sx={{
@@ -300,7 +185,7 @@ const Dashboard = () => {
 								<Grid item xs={12} sm={12} md={4}>
 									<DisplayCountPaper
 										title="Network Requests"
-										count={networkCount}
+										count={counts.network}
 										icon={
 											<PendingActionsIcon
 												sx={{
@@ -319,7 +204,7 @@ const Dashboard = () => {
 								<Grid item xs={12} sm={12} md={4}>
 									<DisplayCountPaper
 										title="Other Requests"
-										count={otherCount}
+										count={counts.other}
 										icon={
 											<PendingActionsIcon
 												sx={{
@@ -346,7 +231,7 @@ const Dashboard = () => {
 							<Grid item xs={12} sm>
 								<DisplayCountPaper
 									title="All Requests"
-									count={reqCount}
+									count={counts.total}
 									icon={
 										<AssignmentIcon
 											sx={{
@@ -365,7 +250,7 @@ const Dashboard = () => {
 							<Grid item xs={12} sm>
 								<DisplayCountPaper
 									title="Approved Requests"
-									count={approveReqCount}
+									count={counts.approved}
 									icon={
 										<FactCheckIcon
 											sx={{
@@ -384,7 +269,7 @@ const Dashboard = () => {
 							<Grid item xs={12} sm>
 								<DisplayCountPaper
 									title="Completed Requests"
-									count={completeReqCount}
+									count={counts.completed}
 									icon={
 										<AssignmentTurnedInIcon
 											sx={{
@@ -403,7 +288,7 @@ const Dashboard = () => {
 							<Grid item xs={12} sm>
 								<DisplayCountPaper
 									title="Rejected Requests"
-									count={rejectedReqCount}
+									count={counts.rejected}
 									icon={
 										<AssignmentLateIcon
 											sx={{

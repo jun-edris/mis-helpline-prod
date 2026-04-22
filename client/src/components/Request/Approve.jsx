@@ -79,9 +79,6 @@ const Approve = ({ record, handleClose }) => {
 
 	useEffect(() => {
 		getTeam();
-		// return () => {
-		// 	second;
-		// };
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
@@ -134,10 +131,9 @@ const Approve = ({ record, handleClose }) => {
 					</Typography>
 				</Box>
 				<Formik
-					initialValues={{ personel: '' }}
+					initialValues={{ personnel: '' }}
 					validationSchema={approveRequestSchema}
 					onSubmit={(values, { resetForm }) => {
-						// console.log(values);
 						approveReq(values, resetForm);
 					}}
 				>
@@ -151,7 +147,7 @@ const Approve = ({ record, handleClose }) => {
 										</InputLabel>
 										<MemberSelection
 											label="Assigned Administrator"
-											name="personel"
+											name="personnel"
 											fullWidth
 										>
 											{records?.members?.map((item, index) => (

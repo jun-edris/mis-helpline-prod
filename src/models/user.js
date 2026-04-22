@@ -6,13 +6,13 @@ const UserSchema = new mongoose.Schema(
 			type: String,
 			required: true,
 			trim: true,
-			max: 50,
+			maxlength: 50,
 		},
 		lastName: {
 			type: String,
 			required: true,
 			trim: true,
-			max: 50,
+			maxlength: 50,
 		},
 		email: {
 			type: String,
@@ -27,12 +27,12 @@ const UserSchema = new mongoose.Schema(
 			required: true,
 			trim: true,
 			unique: true,
-			min: 10,
+			minlength: 10,
 		},
 		password: {
 			type: String,
 			required: true,
-			min: 8,
+			minlength: 8,
 			select: false,
 		},
 		role: {
@@ -43,12 +43,12 @@ const UserSchema = new mongoose.Schema(
 		department: {
 			type: String,
 			trim: true,
-			max: 50,
+			maxlength: 50,
 		},
 		office: {
 			type: String,
 			trim: true,
-			max: 50,
+			maxlength: 50,
 		},
 	},
 	{ timestamps: true }

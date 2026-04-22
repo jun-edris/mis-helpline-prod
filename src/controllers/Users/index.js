@@ -5,6 +5,8 @@ const { createToken, verifyPassword, hashPassword, pusher } = require('./../../u
 
 const isProd = process.env.NODE_ENV === 'production';
 
+const PUBLIC_ROLES = ['student', 'staff', 'faculty'];
+
 const cookieOptions = {
 	httpOnly: true,
 	secure: isProd,
@@ -22,12 +24,24 @@ exports.getRequests = async (req, res) => {
 	}
 };
 
-exports.getReqCount = async (req, res) => {
+exports.getRequestCounts = async (req, res) => {
 	try {
-		const requests = await Req.countDocuments({});
-		res.status(200).json({ message: 'Successfully fetched requests!', requests });
+		const [total, approved, completed, pending, rejected, data, software, hardware, network, other] =
+			await Promise.all([
+				Req.countDocuments({}),
+				Req.countDocuments({ approved: true }),
+				Req.countDocuments({ completed: true }),
+				Req.countDocuments({ pending: true }),
+				Req.countDocuments({ rejected: true }),
+				Req.countDocuments({ title: 'data', pending: true }),
+				Req.countDocuments({ title: 'software', pending: true }),
+				Req.countDocuments({ title: 'hardware', pending: true }),
+				Req.countDocuments({ title: 'network', pending: true }),
+				Req.countDocuments({ title: 'others', pending: true }),
+			]);
+		res.status(200).json({ total, approved, completed, pending, rejected, data, software, hardware, network, other });
 	} catch (error) {
-		console.error('getReqCount:', error.message);
+		console.error('getRequestCounts:', error.message);
 		res.status(500).json({ message: 'Something went wrong!' });
 	}
 };
@@ -44,7 +58,7 @@ exports.getUserRequests = async (req, res) => {
 
 exports.getUserAssignedRequests = async (req, res) => {
 	try {
-		const requests = await Req.find({ personel: req.user.sub })
+		const requests = await Req.find({ personnel: req.user.sub })
 			.populate('user')
 			.lean();
 		res.status(200).json({ message: 'Successfully fetched requests!', requests });
@@ -64,45 +78,15 @@ exports.getCompleteRequests = async (req, res) => {
 	}
 };
 
-exports.getApproveReqCount = async (req, res) => {
-	try {
-		const requests = await Req.countDocuments({ approved: true });
-		res.status(200).json({ message: 'Successfully fetched requests!', requests });
-	} catch (error) {
-		console.error('getApproveReqCount:', error.message);
-		res.status(500).json({ message: 'Something went wrong!' });
-	}
-};
-
-exports.getCompleteReqCount = async (req, res) => {
-	try {
-		const requests = await Req.countDocuments({ completed: true });
-		res.status(200).json({ message: 'Successfully fetched requests!', requests });
-	} catch (error) {
-		console.error('getCompleteReqCount:', error.message);
-		res.status(500).json({ message: 'Something went wrong!' });
-	}
-};
-
 exports.getPendingRequests = async (req, res) => {
 	try {
 		const requests = await Req.find({ pending: true })
 			.populate('user')
-			.populate('personel')
+			.populate('personnel')
 			.lean();
 		res.status(200).json({ message: 'Successfully fetched requests!', requests });
 	} catch (error) {
 		console.error('getPendingRequests:', error.message);
-		res.status(500).json({ message: 'Something went wrong!' });
-	}
-};
-
-exports.getPendingReqCount = async (req, res) => {
-	try {
-		const requests = await Req.countDocuments({ pending: true });
-		res.status(200).json({ message: 'Successfully fetched requests!', requests });
-	} catch (error) {
-		console.error('getPendingReqCount:', error.message);
 		res.status(500).json({ message: 'Something went wrong!' });
 	}
 };
@@ -113,66 +97,6 @@ exports.getRejectedRequests = async (req, res) => {
 		res.status(200).json({ message: 'Successfully fetched requests!', requests });
 	} catch (error) {
 		console.error('getRejectedRequests:', error.message);
-		res.status(500).json({ message: 'Something went wrong!' });
-	}
-};
-
-exports.getRejectedReqCount = async (req, res) => {
-	try {
-		const requests = await Req.countDocuments({ rejected: true });
-		res.status(200).json({ message: 'Successfully fetched requests!', requests });
-	} catch (error) {
-		console.error('getRejectedReqCount:', error.message);
-		res.status(500).json({ message: 'Something went wrong!' });
-	}
-};
-
-exports.getDataReqCount = async (req, res) => {
-	try {
-		const requests = await Req.countDocuments({ title: 'data', pending: true });
-		res.status(200).json({ message: 'Successfully fetched requests!', requests });
-	} catch (error) {
-		console.error('getDataReqCount:', error.message);
-		res.status(500).json({ message: 'Something went wrong!' });
-	}
-};
-
-exports.getSoftwareReqCount = async (req, res) => {
-	try {
-		const requests = await Req.countDocuments({ title: 'software', pending: true });
-		res.status(200).json({ message: 'Successfully fetched requests!', requests });
-	} catch (error) {
-		console.error('getSoftwareReqCount:', error.message);
-		res.status(500).json({ message: 'Something went wrong!' });
-	}
-};
-
-exports.getHardwareReqCount = async (req, res) => {
-	try {
-		const requests = await Req.countDocuments({ title: 'hardware', pending: true });
-		res.status(200).json({ message: 'Successfully fetched requests!', requests });
-	} catch (error) {
-		console.error('getHardwareReqCount:', error.message);
-		res.status(500).json({ message: 'Something went wrong!' });
-	}
-};
-
-exports.getNetworkReqCount = async (req, res) => {
-	try {
-		const requests = await Req.countDocuments({ title: 'network', pending: true });
-		res.status(200).json({ message: 'Successfully fetched requests!', requests });
-	} catch (error) {
-		console.error('getNetworkReqCount:', error.message);
-		res.status(500).json({ message: 'Something went wrong!' });
-	}
-};
-
-exports.getOtherReqCount = async (req, res) => {
-	try {
-		const requests = await Req.countDocuments({ title: 'others', pending: true });
-		res.status(200).json({ message: 'Successfully fetched requests!', requests });
-	} catch (error) {
-		console.error('getOtherReqCount:', error.message);
 		res.status(500).json({ message: 'Something went wrong!' });
 	}
 };
@@ -206,6 +130,9 @@ exports.login = async (req, res) => {
 exports.signup = async (req, res) => {
 	try {
 		const { email, firstName, lastName, contact, role } = req.body;
+
+		if (!PUBLIC_ROLES.includes(role))
+			return res.status(400).json({ message: 'Invalid role' });
 
 		const splitedEmail = email.split('@');
 		if (splitedEmail[1] !== 'bisu.edu.ph')

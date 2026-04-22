@@ -40,7 +40,7 @@ export const pendingRequest = [
 	{ id: 'user', label: 'Person Request' },
 	{ id: 'title', label: 'Request Title' },
 	{ id: 'type', label: 'Request Type' },
-	{ id: 'personel', label: 'Assigned Personel' },
+	{ id: 'personnel', label: 'Assigned Personnel' },
 ];
 
 export const rejectedRequest = [

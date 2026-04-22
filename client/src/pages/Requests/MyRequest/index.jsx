@@ -31,7 +31,7 @@ const MyRequest = () => {
 
 	const getUserRequests = async () => {
 		fetchContext.authAxios
-			.get(`/user-requests`)
+			.get(`/requests/mine`)
 			.then(({ data }) => {
 				setRecords(data.requests);
 			})
@@ -121,11 +121,6 @@ const MyRequest = () => {
 								</TableRow>
 							</TableHead>
 							<TableBody>
-								{/* <TableRow>
-									{request.map((req, index) => (
-										<TableCell key={index}>{req.label}</TableCell>
-									))}
-								</TableRow> */}
 								{records.map((record, index) => {
 									const date = new Date(record?.createdAt);
 									const month = date.getMonth() + 1;

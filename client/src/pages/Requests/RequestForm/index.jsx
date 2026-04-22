@@ -59,7 +59,7 @@ const RequestForm = () => {
 	const submitRequest = async (values, resetForm) => {
 		try {
 			setLoading(true);
-			const { data } = await fetchContext.authAxios.post(`/request`, values);
+			const { data } = await fetchContext.authAxios.post(`/requests`, values);
 			setSuccessMessage(data.message);
 			setTicketNo(data.ticketNo);
 			setReqType(data.reqType);
@@ -71,8 +71,6 @@ const RequestForm = () => {
 			if (data?.ticketNo) {
 				setOpenPopup(true);
 			}
-
-			// const response = await
 		} catch (e) {
 			const { data } = e.response;
 			setErrorMessage(data.message);
@@ -109,7 +107,6 @@ const RequestForm = () => {
 					validationSchema={requestSchema}
 					onSubmit={(values, { resetForm }) => {
 						submitRequest(values, resetForm);
-						// console.log(values);
 					}}
 				>
 					{(values) => {
