@@ -1,6 +1,7 @@
-const { jwtDecode } = require('jwt-decode');
+const jwt = require('jsonwebtoken');
 const User = require('./../../models/user');
 const Req = require('./../../models/request');
+const TokenBlacklist = require('./../../models/tokenBlacklist');
 const { createToken, verifyPassword, hashPassword, pusher } = require('./../../utils');
 
 const isProd = process.env.NODE_ENV === 'production';
@@ -117,7 +118,7 @@ exports.login = async (req, res) => {
 
 		const { password: _pw, ...rest } = user;
 		const token = createToken(rest);
-		const expiresAt = jwtDecode(token).exp;
+		const expiresAt = jwt.decode(token).exp;
 
 		res.cookie('token', token, cookieOptions);
 		res.json({ message: 'Authentication successful!', token, userInfo: rest, expiresAt });
@@ -126,6 +127,8 @@ exports.login = async (req, res) => {
 		return res.status(500).json({ message: 'Something went wrong.' });
 	}
 };
+
+const PASSWORD_REGEX = /^(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?])/;
 
 exports.signup = async (req, res) => {
 	try {
@@ -137,6 +140,9 @@ exports.signup = async (req, res) => {
 		const splitedEmail = email.split('@');
 		if (splitedEmail[1] !== 'bisu.edu.ph')
 			return res.status(400).json({ message: 'Email should be a BISU email!' });
+
+		if (!PASSWORD_REGEX.test(req.body.password))
+			return res.status(400).json({ message: 'Password must contain at least one uppercase letter, one number, and one special character.' });
 
 		const existingEmail = await User.findOne({ email: email.toLowerCase() }).lean();
 		if (existingEmail)
@@ -217,7 +223,21 @@ exports.ticket = async (req, res) => {
 	}
 };
 
-exports.logout = (req, res) => {
+exports.logout = async (req, res) => {
+	const token = req.cookies.token;
+	if (token) {
+		try {
+			const decoded = jwt.decode(token);
+			if (decoded?.jti && decoded?.exp) {
+				await TokenBlacklist.create({
+					jti: decoded.jti,
+					expiresAt: new Date(decoded.exp * 1000),
+				});
+			}
+		} catch {
+			// blacklist failure should not block logout
+		}
+	}
 	res.clearCookie('token', {
 		httpOnly: true,
 		secure: isProd,

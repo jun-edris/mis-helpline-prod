@@ -1,29 +1,32 @@
 const jwt = require('jsonwebtoken');
+const TokenBlacklist = require('../models/tokenBlacklist');
 
-const verifyToken = (req) => {
+const verifyToken = async (req) => {
 	const token = req.cookies.token;
 	if (!token) return null;
 	try {
-		return jwt.verify(token, process.env.JWT_SECRET_KEY, {
+		const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY, {
 			algorithms: ['HS256'],
 			issuer: 'api.mishelpline',
 			audience: 'api.mishelpline',
 		});
+		if (decoded.jti && await TokenBlacklist.exists({ jti: decoded.jti })) return null;
+		return decoded;
 	} catch {
 		return null;
 	}
 };
 
-exports.attachUser = (req, res, next) => {
-	const user = verifyToken(req);
+exports.attachUser = async (req, res, next) => {
+	const user = await verifyToken(req);
 	if (!user)
 		return res.status(401).json({ message: 'Authentication Invalid' });
 	req.user = user;
 	next();
 };
 
-exports.requireAdmin = (req, res, next) => {
-	const user = verifyToken(req);
+exports.requireAdmin = async (req, res, next) => {
+	const user = await verifyToken(req);
 	if (!user)
 		return res.status(401).json({ message: 'There was a problem authorizing the request' });
 	if (user.role !== 'admin')
@@ -32,8 +35,8 @@ exports.requireAdmin = (req, res, next) => {
 	next();
 };
 
-exports.requireSuperAdmin = (req, res, next) => {
-	const user = verifyToken(req);
+exports.requireSuperAdmin = async (req, res, next) => {
+	const user = await verifyToken(req);
 	if (!user)
 		return res.status(401).json({ message: 'There was a problem authorizing the request' });
 	if (user.role !== 'superAdmin')
@@ -42,8 +45,8 @@ exports.requireSuperAdmin = (req, res, next) => {
 	next();
 };
 
-exports.requireAuthorized = (req, res, next) => {
-	const user = verifyToken(req);
+exports.requireAuthorized = async (req, res, next) => {
+	const user = await verifyToken(req);
 	if (!user)
 		return res.status(401).json({ message: 'There was a problem authorizing the request' });
 	if (!['admin', 'superAdmin'].includes(user.role))
@@ -52,8 +55,8 @@ exports.requireAuthorized = (req, res, next) => {
 	next();
 };
 
-exports.requireAuthenticated = (req, res, next) => {
-	const user = verifyToken(req);
+exports.requireAuthenticated = async (req, res, next) => {
+	const user = await verifyToken(req);
 	if (!user)
 		return res.status(401).json({ message: 'There was a problem authorizing the request' });
 	if (!['student', 'staff', 'faculty', 'superAdmin', 'admin'].includes(user.role))

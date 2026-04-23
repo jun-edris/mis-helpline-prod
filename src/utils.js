@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const Pusher = require('pusher');
+const crypto = require('crypto');
 
 const createToken = (user) => {
 	if (!user.role) throw new Error('No user role specified');
@@ -8,6 +9,7 @@ const createToken = (user) => {
 
 	return jwt.sign(
 		{
+			jti: crypto.randomUUID(),
 			sub: user._id,
 			email: user.email,
 			role: user.role,
