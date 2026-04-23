@@ -121,7 +121,7 @@ exports.login = async (req, res) => {
 		const expiresAt = jwt.decode(token).exp;
 
 		res.cookie('token', token, cookieOptions);
-		res.json({ message: 'Authentication successful!', token, userInfo: rest, expiresAt });
+		res.json({ message: 'Authentication successful!', userInfo: rest, expiresAt });
 	} catch (error) {
 		console.error('login:', error.message);
 		return res.status(500).json({ message: 'Something went wrong.' });
@@ -206,14 +206,17 @@ exports.ticket = async (req, res) => {
 	try {
 		const { ticketNo } = req.body;
 
+		const existing = await Req.findById(req.params.id).lean();
+		if (!existing)
+			return res.status(404).json({ message: 'Request not found!' });
+		if (existing.user.toString() !== req.user.sub.toString())
+			return res.status(403).json({ message: 'Not authorized' });
+
 		const updated = await Req.findByIdAndUpdate(
 			req.params.id,
 			{ ticketNo },
 			{ new: true }
 		);
-
-		if (!updated)
-			return res.status(404).json({ message: 'Request not found!' });
 
 		pusher.trigger('request', 'ticket', updated);
 		return res.status(200).json({ message: 'Success' });
@@ -248,9 +251,13 @@ exports.logout = async (req, res) => {
 
 exports.cancelRequest = async (req, res) => {
 	try {
-		const canceledReq = await Req.findByIdAndDelete(req.params.id);
-		if (!canceledReq)
+		const existing = await Req.findById(req.params.id).lean();
+		if (!existing)
 			return res.status(404).json({ message: 'Request not found!' });
+		if (existing.user.toString() !== req.user.sub.toString())
+			return res.status(403).json({ message: 'Not authorized' });
+
+		const canceledReq = await Req.findByIdAndDelete(req.params.id);
 		pusher.trigger('request', 'deleted-req', canceledReq);
 		res.status(200).json({ message: 'Successfully canceled requests!' });
 	} catch (error) {
