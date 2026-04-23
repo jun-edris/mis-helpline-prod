@@ -14,28 +14,21 @@ const {
 	cancelRequest,
 	getRequestCounts,
 } = require('../controllers/Users');
-const { attachUser, requireAuthenticated } = require('./../middlewares');
-const {
-	validateLogin,
-	validateSignup,
-	validateRequest,
-	validateTicket,
-	validateIdParam,
-} = require('./../middlewares/validate');
+const { requireAuthenticated } = require('./../middlewares');
 const router = express.Router();
 
-router.get('/requests', attachUser, requireAuthenticated, getRequests);
-router.get('/requests/counts', attachUser, requireAuthenticated, getRequestCounts);
-router.get('/requests/mine', attachUser, requireAuthenticated, getUserRequests);
-router.get('/requests/assigned', attachUser, requireAuthenticated, getUserAssignedRequests);
-router.get('/requests/completed', attachUser, requireAuthenticated, getCompleteRequests);
-router.get('/requests/pending', attachUser, requireAuthenticated, getPendingRequests);
-router.get('/requests/rejected', attachUser, requireAuthenticated, getRejectedRequests);
-router.post('/login', validateLogin, login);
-router.post('/signup', validateSignup, signup);
-router.post('/requests', attachUser, requireAuthenticated, validateRequest, request);
-router.patch('/request/:id', attachUser, requireAuthenticated, validateTicket, ticket);
-router.delete('/request/:id', attachUser, requireAuthenticated, validateIdParam, cancelRequest);
+router.get('/requests', requireAuthenticated, getRequests);
+router.get('/requests/counts', requireAuthenticated, getRequestCounts);
+router.get('/requests/mine', requireAuthenticated, getUserRequests);
+router.get('/requests/assigned', requireAuthenticated, getUserAssignedRequests);
+router.get('/requests/completed', requireAuthenticated, getCompleteRequests);
+router.get('/requests/pending', requireAuthenticated, getPendingRequests);
+router.get('/requests/rejected', requireAuthenticated, getRejectedRequests);
+router.post('/login', login);
+router.post('/signup', signup);
+router.post('/requests', requireAuthenticated, request);
+router.patch('/request/:id', requireAuthenticated, ticket);
+router.delete('/request/:id', requireAuthenticated, cancelRequest);
 router.post('/logout', logout);
 
 module.exports = router;

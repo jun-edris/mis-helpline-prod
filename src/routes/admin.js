@@ -1,9 +1,8 @@
 const express = require('express');
 const { completeReq } = require('../controllers/Admin');
-const { attachUser, requireAdmin } = require('./../middlewares');
-const { validateIdParam } = require('./../middlewares/validate');
+const { requireAdmin } = require('./../middlewares');
 const router = express.Router();
 
-router.patch('/request/complete/:id', attachUser, requireAdmin, validateIdParam, completeReq);
+router.patch('/request/complete/:id', requireAdmin, completeReq);
 
 module.exports = router;
