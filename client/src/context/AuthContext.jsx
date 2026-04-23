@@ -1,4 +1,4 @@
-import { useState, createContext } from 'react';
+import { useState, createContext, useRef } from 'react';
 import Pusher from 'pusher-js';
 
 const AuthContext = createContext();
@@ -8,9 +8,13 @@ const AuthProvider = ({ children }) => {
 	const userInfo = localStorage.getItem('userInfo');
 	const expiresAt = localStorage.getItem('expiresAt');
 
-	const pusher = new Pusher(import.meta.env.VITE_APP_KEY, {
-		cluster: import.meta.env.VITE_CLUSTER,
-	});
+	const pusherRef = useRef(null);
+	if (!pusherRef.current) {
+		pusherRef.current = new Pusher(import.meta.env.VITE_APP_KEY, {
+			cluster: import.meta.env.VITE_CLUSTER,
+		});
+	}
+	const pusher = pusherRef.current;
 
 	const [authState, setAuthState] = useState({
 		token: null,

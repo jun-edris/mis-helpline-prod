@@ -50,7 +50,7 @@ app.use(
           "wss://*.pusher.com",
           "https://*.sockjs.org",
         ],
-        scriptSrc: ["'self'", "'unsafe-inline'"],
+        scriptSrc: ["'self'", ...(!isProd ? ["'unsafe-inline'"] : [])],
         styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
         fontSrc: ["'self'", "https://fonts.gstatic.com"],
         imgSrc: ["'self'", "data:", "blob:"],

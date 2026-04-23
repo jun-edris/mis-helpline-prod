@@ -7,6 +7,7 @@ const { createToken, verifyPassword, hashPassword, pusher } = require('./../../u
 const isProd = process.env.NODE_ENV === 'production';
 
 const PUBLIC_ROLES = ['student', 'staff', 'faculty'];
+const VALID_TITLES = ['data', 'software', 'hardware', 'network', 'others'];
 
 const cookieOptions = {
 	httpOnly: true,
@@ -121,7 +122,7 @@ exports.login = async (req, res) => {
 		const expiresAt = jwt.decode(token).exp;
 
 		res.cookie('token', token, cookieOptions);
-		res.json({ message: 'Authentication successful!', token, userInfo: rest, expiresAt });
+		res.json({ message: 'Authentication successful!', userInfo: rest, expiresAt });
 	} catch (error) {
 		console.error('login:', error.message);
 		return res.status(500).json({ message: 'Something went wrong.' });
@@ -187,14 +188,41 @@ exports.request = async (req, res) => {
 		const { title, reqType, description } = req.body;
 		const { sub } = req.user;
 
-		const savedRequest = await new Req({ user: sub, title, reqType, description }).save();
+		if (!VALID_TITLES.includes(title))
+			return res.status(400).json({ message: 'Invalid request category' });
+		if (!reqType || typeof reqType !== 'string' || reqType.trim().length < 2 || reqType.trim().length > 100)
+			return res.status(400).json({ message: 'Request type must be between 2 and 100 characters' });
+		if (!description || typeof description !== 'string' || description.trim().length < 10 || description.trim().length > 1000)
+			return res.status(400).json({ message: 'Description must be between 10 and 1000 characters' });
+
+		let savedRequest;
+		let attempts = 0;
+		while (attempts < 5) {
+			const ticketNo = Math.floor(1000 + Math.random() * 9000);
+			try {
+				savedRequest = await new Req({
+					user: sub,
+					title: title.trim(),
+					reqType: reqType.trim(),
+					description: description.trim(),
+					ticketNo,
+				}).save();
+				break;
+			} catch (err) {
+				if (err.code === 11000) { attempts++; continue; }
+				throw err;
+			}
+		}
+
+		if (!savedRequest)
+			return res.status(500).json({ message: 'Could not generate a unique ticket number, please try again.' });
 
 		pusher.trigger('request', 'created', savedRequest);
 		return res.status(201).json({
 			message: 'Request created successfully!',
 			_id: savedRequest._id,
-			ticketNo: Math.floor(1000 + Math.random() * 9000),
-			reqType,
+			ticketNo: savedRequest.ticketNo,
+			reqType: savedRequest.reqType,
 		});
 	} catch (error) {
 		console.error('request:', error.message);
@@ -206,14 +234,20 @@ exports.ticket = async (req, res) => {
 	try {
 		const { ticketNo } = req.body;
 
+		const existingReq = await Req.findById(req.params.id);
+		if (!existingReq)
+			return res.status(404).json({ message: 'Request not found!' });
+
+		const isOwner = existingReq.user.toString() === req.user.sub;
+		const isAuthorized = ['admin', 'superAdmin'].includes(req.user.role);
+		if (!isOwner && !isAuthorized)
+			return res.status(403).json({ message: 'Not your resource' });
+
 		const updated = await Req.findByIdAndUpdate(
 			req.params.id,
 			{ ticketNo },
 			{ new: true }
 		);
-
-		if (!updated)
-			return res.status(404).json({ message: 'Request not found!' });
 
 		pusher.trigger('request', 'ticket', updated);
 		return res.status(200).json({ message: 'Success' });
@@ -248,10 +282,17 @@ exports.logout = async (req, res) => {
 
 exports.cancelRequest = async (req, res) => {
 	try {
-		const canceledReq = await Req.findByIdAndDelete(req.params.id);
-		if (!canceledReq)
+		const existingReq = await Req.findById(req.params.id);
+		if (!existingReq)
 			return res.status(404).json({ message: 'Request not found!' });
-		pusher.trigger('request', 'deleted-req', canceledReq);
+
+		const isOwner = existingReq.user.toString() === req.user.sub;
+		const isAuthorized = ['admin', 'superAdmin'].includes(req.user.role);
+		if (!isOwner && !isAuthorized)
+			return res.status(403).json({ message: 'Not your resource' });
+
+		await existingReq.deleteOne();
+		pusher.trigger('request', 'deleted-req', existingReq);
 		res.status(200).json({ message: 'Successfully canceled requests!' });
 	} catch (error) {
 		console.error('cancelRequest:', error.message);
