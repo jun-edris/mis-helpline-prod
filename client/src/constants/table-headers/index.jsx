@@ -10,7 +10,7 @@ export const request = [
 export const allRequest = [
 	{ id: 'date', label: 'Date' },
 	{ id: 'no', label: 'Ticket No.' },
-	{ id: 'user', label: 'Person Request' },
+	{ id: 'user', label: 'Requested By' },
 	{ id: 'title', label: 'Request Title' },
 	{ id: 'type', label: 'Request Type' },
 	{ id: 'status', label: 'Status' },
@@ -19,7 +19,7 @@ export const allRequest = [
 export const assignedRequest = [
 	{ id: 'date', label: 'Date' },
 	{ id: 'no', label: 'Ticket No.' },
-	{ id: 'user', label: 'Person Request' },
+	{ id: 'user', label: 'Requested By' },
 	{ id: 'title', label: 'Request Title' },
 	{ id: 'type', label: 'Request Type' },
 	{ id: 'status', label: 'Status' },
@@ -29,7 +29,7 @@ export const assignedRequest = [
 export const completedRequest = [
 	{ id: 'date', label: 'Date' },
 	{ id: 'no', label: 'Ticket No.' },
-	{ id: 'user', label: 'Person Request' },
+	{ id: 'user', label: 'Requested By' },
 	{ id: 'title', label: 'Request Title' },
 	{ id: 'type', label: 'Request Type' },
 ];
@@ -37,7 +37,7 @@ export const completedRequest = [
 export const pendingRequest = [
 	{ id: 'date', label: 'Date' },
 	{ id: 'no', label: 'Ticket No.' },
-	{ id: 'user', label: 'Person Request' },
+	{ id: 'user', label: 'Requested By' },
 	{ id: 'title', label: 'Request Title' },
 	{ id: 'type', label: 'Request Type' },
 	{ id: 'personnel', label: 'Assigned Personnel' },
@@ -46,7 +46,7 @@ export const pendingRequest = [
 export const rejectedRequest = [
 	{ id: 'date', label: 'Date' },
 	{ id: 'no', label: 'Ticket No.' },
-	{ id: 'user', label: 'Person Request' },
+	{ id: 'user', label: 'Requested By' },
 	{ id: 'title', label: 'Request Title' },
 	{ id: 'type', label: 'Request Type' },
 	{ id: 'reason', label: 'Reason' },

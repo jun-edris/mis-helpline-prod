@@ -1,72 +1,103 @@
 import { Box, Button, CircularProgress, Typography } from '@mui/material';
-import React, { useContext, useState } from 'react';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FetchContext } from '../context/FetchContext';
 
-const Ticket = ({ ticketNo, logo, reqType, handleClose, id }) => {
+const Ticket = ({ ticketNo, reqType, handleClose, id }) => {
 	const history = useNavigate();
 	const fetchContext = useContext(FetchContext);
 	const [loading, setLoading] = useState(false);
 
 	const sendTicket = async () => {
 		try {
-			const data = { ticketNo };
 			setLoading(true);
-			await fetchContext.authAxios.patch(`/request/${id}`, data);
+			await fetchContext.authAxios.patch(`/request/${id}`, { ticketNo });
 			setLoading(false);
-		} catch (e) {
+		} catch {
 			setLoading(false);
 		}
 	};
 
 	return (
-		<Box>
+		<Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, py: 2 }}>
 			<Box
-				sx={{ display: 'flex', alignItems: 'center', flexDirection: 'column' }}
+				sx={{
+					width: 56,
+					height: 56,
+					bgcolor: '#EDFFF9',
+					borderRadius: '50%',
+					display: 'flex',
+					alignItems: 'center',
+					justifyContent: 'center',
+					color: '#00B67A',
+				}}
 			>
-				{logo}
+				<CheckCircleOutlineIcon sx={{ fontSize: 32 }} />
 			</Box>
+
 			<Typography
-				variant="h6"
-				sx={{ textAlign: 'center', textTransform: 'uppercase' }}
+				sx={{
+					fontFamily: "'Poppins', sans-serif",
+					fontSize: 16,
+					fontWeight: 600,
+					color: '#1C1C1C',
+					textAlign: 'center',
+				}}
 			>
-				your request is on the way
+				Request Submitted
 			</Typography>
+
 			<Typography
-				variant="subtitle2"
-				sx={{ textAlign: 'center', textTransform: 'uppercase' }}
+				sx={{
+					fontFamily: "'Inter', sans-serif",
+					fontSize: 13,
+					color: '#64748B',
+					textAlign: 'center',
+					maxWidth: 300,
+				}}
 			>
-				you have requested an assistance for {reqType}, your ticket no. is
+				Your <strong>{reqType}</strong> request is on its way. Your ticket number is:
 			</Typography>
-			<Typography
-				variant="h3"
-				sx={{ textAlign: 'center', textTransform: 'uppercase' }}
-			>
-				{ticketNo}
-			</Typography>
+
 			<Box
-				sx={{ display: 'flex', alignItems: 'center', flexDirection: 'column' }}
+				sx={{
+					bgcolor: '#F5F6FA',
+					border: '1px solid #E2E8F0',
+					borderRadius: '8px',
+					px: 4,
+					py: 2,
+					textAlign: 'center',
+				}}
 			>
-				<Button
-					variant="contained"
-					color="success"
-					disabled={loading === true}
-					startIcon={
-						loading === true ? (
-							<CircularProgress size={20} color="primary" />
-						) : null
-					}
-					onClick={() => {
-						sendTicket();
-						if (!loading) {
-							history('/request', { replace: true });
-							return handleClose();
-						}
+				<Typography
+					sx={{
+						fontFamily: "'IBM Plex Mono', monospace",
+						fontSize: 28,
+						fontWeight: 600,
+						color: '#00B67A',
+						letterSpacing: '0.05em',
 					}}
 				>
-					Continue
-				</Button>
+					{ticketNo}
+				</Typography>
 			</Box>
+
+			<Button
+				variant="contained"
+				disabled={loading}
+				startIcon={loading ? <CircularProgress size={16} sx={{ color: 'white' }} /> : null}
+				onClick={() => {
+					sendTicket();
+					if (!loading) {
+						history('/request', { replace: true });
+						handleClose();
+					}
+				}}
+				sx={{ mt: 1, minWidth: 140 }}
+			>
+				Continue
+			</Button>
 		</Box>
 	);
 };

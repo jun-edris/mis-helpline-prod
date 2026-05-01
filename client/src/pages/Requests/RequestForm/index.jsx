@@ -1,13 +1,11 @@
 import {
 	Alert,
-	Avatar,
 	Box,
 	Button,
 	CircularProgress,
 	Container,
 	FormControl,
 	FormControlLabel,
-	Paper,
 	Radio,
 	Typography,
 } from '@mui/material';
@@ -16,6 +14,7 @@ import AlbumIcon from '@mui/icons-material/Album';
 import StorageIcon from '@mui/icons-material/Storage';
 import LanguageIcon from '@mui/icons-material/Language';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import InputField from '../../../components/common/InputField';
 import { Formik, Form, Field } from 'formik';
 import { Link, useParams } from 'react-router-dom';
@@ -39,6 +38,14 @@ const softwareOptions = ['installation', 'maintenance'];
 const hardwareOptions = ['setup', 'maintenance'];
 const networkOptions = ['setup', 'configure', 'repair', 'maintenance'];
 
+const TYPE_ICON = {
+	data: <StorageIcon sx={{ fontSize: 24 }} />,
+	software: <AlbumIcon sx={{ fontSize: 24 }} />,
+	hardware: <MemoryIcon sx={{ fontSize: 24 }} />,
+	network: <LanguageIcon sx={{ fontSize: 24 }} />,
+	others: <MoreVertIcon sx={{ fontSize: 24 }} />,
+};
+
 const RequestForm = () => {
 	const { type } = useParams();
 	const [openPopup, setOpenPopup] = useState(false);
@@ -52,9 +59,7 @@ const RequestForm = () => {
 	const fetchContext = useContext(FetchContext);
 	const [loading, setLoading] = useState(false);
 
-	const handleClose = () => {
-		setOpenPopup(false);
-	};
+	const handleClose = () => setOpenPopup(false);
 
 	const submitRequest = async (values, resetForm) => {
 		try {
@@ -97,130 +102,151 @@ const RequestForm = () => {
 				/>
 			)}
 			<Header />
-			<Container sx={{ marginBottom: 5 }}>
-				<Formik
-					initialValues={{
-						title: type,
-						reqType: '',
-						description: '',
-					}}
-					validationSchema={requestSchema}
-					onSubmit={(values, { resetForm }) => {
-						submitRequest(values, resetForm);
-					}}
-				>
-					{(values) => {
-						return (
+			<Container maxWidth="md" sx={{ mb: 8 }}>
+				<Box sx={{ mt: 5, display: 'flex', flexDirection: 'column', gap: 3 }}>
+					{/* Page header */}
+					<Box>
+						<Typography
+							sx={{
+								fontFamily: "'Poppins', sans-serif",
+								fontSize: 26,
+								fontWeight: 700,
+								color: '#1C1C1C',
+								lineHeight: 1.2,
+							}}
+						>
+							Submit a Request
+						</Typography>
+						<Typography
+							sx={{
+								fontFamily: "'Inter', sans-serif",
+								fontSize: 14,
+								color: '#64748B',
+								mt: 0.5,
+							}}
+						>
+							Fill out the form below to submit your IT support request
+						</Typography>
+					</Box>
+
+					<Formik
+						initialValues={{ title: type, reqType: '', description: '' }}
+						validationSchema={requestSchema}
+						onSubmit={(values, { resetForm }) => submitRequest(values, resetForm)}
+					>
+						{(formik) => (
 							<Form>
-								<Box sx={{ marginTop: 5 }}>
-									<Typography variant="h6" component="p" sx={{ marginTop: 2 }}>
-										You are requesting for
-									</Typography>
-									<Paper
+								<Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+									{/* Request type card */}
+									<Box
 										sx={{
-											marginTop: 3,
+											bgcolor: '#ffffff',
+											border: '1px solid #E2E8F0',
+											borderRadius: '8px',
+											boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
 											p: 3,
 											display: 'flex',
 											alignItems: 'center',
 											gap: 2,
 											justifyContent: 'space-between',
 										}}
-										elevation={8}
 									>
-										<Box
+										<Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+											<Box
+												sx={{
+													width: 48,
+													height: 48,
+													bgcolor: '#EDFFF9',
+													borderRadius: '10px',
+													display: 'flex',
+													alignItems: 'center',
+													justifyContent: 'center',
+													color: '#00B67A',
+													flexShrink: 0,
+												}}
+											>
+												{TYPE_ICON[type] ?? <MoreVertIcon sx={{ fontSize: 24 }} />}
+											</Box>
+											<Box>
+												<Typography
+													sx={{
+														fontFamily: "'Poppins', sans-serif",
+														fontSize: 14,
+														fontWeight: 600,
+														color: '#1C1C1C',
+														textTransform: 'capitalize',
+													}}
+												>
+													{type} Request
+												</Typography>
+												<Typography
+													sx={{
+														fontFamily: "'Inter', sans-serif",
+														fontSize: 12,
+														color: '#64748B',
+													}}
+												>
+													Select the specific request subtype below
+												</Typography>
+											</Box>
+										</Box>
+										<Link to="/home" style={{ textDecoration: 'none' }}>
+											<Button
+												variant="outlined"
+												size="small"
+												startIcon={<ArrowBackIcon />}
+												sx={{
+													borderColor: '#E2E8F0',
+													color: '#64748B',
+													fontFamily: "'Poppins', sans-serif",
+													fontSize: 12,
+													'&:hover': { borderColor: '#00B67A', color: '#00B67A' },
+												}}
+											>
+												Change
+											</Button>
+										</Link>
+									</Box>
+
+									{/* Subtype selection */}
+									<Box
+										sx={{
+											bgcolor: '#ffffff',
+											border: '1px solid #E2E8F0',
+											borderRadius: '8px',
+											boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
+											p: 3,
+										}}
+									>
+										<Typography
 											sx={{
-												display: 'flex',
-												alignItems: 'center',
-												gap: 2,
+												fontFamily: "'Poppins', sans-serif",
+												fontSize: 13,
+												fontWeight: 600,
+												color: '#1C1C1C',
+												mb: 2,
 											}}
 										>
-											<Avatar
-												sx={{
-													width: 60,
-													height: 60,
-													backgroundColor: 'transparent',
-													border: 1,
-													borderColor: '#192a56',
-													color: '#192a56',
-												}}
-											>
-												{type === 'data' && (
-													<StorageIcon sx={{ fontSize: 40 }} />
-												)}
-												{type === 'software' && (
-													<AlbumIcon sx={{ fontSize: 40 }} />
-												)}
-												{type === 'hardware' && (
-													<MemoryIcon sx={{ fontSize: 40 }} />
-												)}
-												{type === 'network' && (
-													<LanguageIcon sx={{ fontSize: 40 }} />
-												)}
-												{type === 'others' && (
-													<MoreVertIcon sx={{ fontSize: 40 }} />
-												)}
-											</Avatar>
-											<Typography variant="h6" component="p">
-												{type}
-											</Typography>
-										</Box>
-										<Box>
-											<Link
-												to="/home"
-												style={{ color: 'inherit', textDecoration: 'none' }}
-											>
-												<CustomButton color="secondary" variant="contained">
-													Change Request
-												</CustomButton>
-											</Link>
-										</Box>
-									</Paper>
-
-									<Container sx={{ marginTop: 4 }}>
+											Request Subtype
+										</Typography>
 										{type !== 'others' && (
 											<Field name="reqType">
-												{({ field, form, meta }) => {
-													return (
-														<RadioGroupFormik form={form} field={field}>
-															{type === 'data' &&
-																dataOptions.map((option) => (
-																	<FormControlLabel
-																		key={option}
-																		value={option}
-																		control={<Radio />}
-																		label={option}
-																	/>
-																))}
-															{type === 'hardware' &&
-																hardwareOptions.map((option) => (
-																	<FormControlLabel
-																		key={option}
-																		value={option}
-																		control={<Radio />}
-																		label={option}
-																	/>
-																))}
-															{type === 'software' &&
-																softwareOptions.map((option) => (
-																	<FormControlLabel
-																		key={option}
-																		value={option}
-																		control={<Radio />}
-																		label={option}
-																	/>
-																))}
-															{type === 'network' &&
-																networkOptions.map((option) => (
-																	<FormControlLabel
-																		key={option}
-																		value={option}
-																		control={<Radio />}
-																		label={option}
-																	/>
-																))}
-														</RadioGroupFormik>
-													);
-												}}
+												{({ field, form }) => (
+													<RadioGroupFormik form={form} field={field}>
+														{type === 'data' && dataOptions.map((o) => (
+															<FormControlLabel key={o} value={o} control={<Radio />} label={o} />
+														))}
+														{type === 'hardware' && hardwareOptions.map((o) => (
+															<FormControlLabel key={o} value={o} control={<Radio />} label={o} />
+														))}
+														{type === 'software' && softwareOptions.map((o) => (
+															<FormControlLabel key={o} value={o} control={<Radio />} label={o} />
+														))}
+														{type === 'network' && networkOptions.map((o) => (
+															<FormControlLabel key={o} value={o} control={<Radio />} label={o} />
+														))}
+													</RadioGroupFormik>
+												)}
 											</Field>
 										)}
 										{type === 'others' && (
@@ -229,84 +255,91 @@ const RequestForm = () => {
 													margin="dense"
 													required
 													fullWidth
-													id="firstName"
 													label="Please specify..."
 													name="reqType"
 													autoComplete="off"
 													type="text"
-													onKeyPress={(evt) => {
-														const alpha = /^[a-zA-Z\s]*$/;
-														evt.key.replace(alpha, '') && evt.preventDefault();
+													onKeyDown={(evt) => {
+														const alpha = /^[a-zA-Z\s]$/;
+														if (!alpha.test(evt.key) && evt.key !== 'Backspace' && evt.key !== 'Delete') {
+															evt.preventDefault();
+														}
 													}}
 												/>
 											</FormControl>
 										)}
-									</Container>
-									{values.values.reqType === 'social media content' && (
-										<Box>
-											<Typography
-												variant="subtitle1"
-												component="p"
-												sx={{ marginTop: 2 }}
-											>
-												Content Information
-											</Typography>
-											<Box sx={{ marginTop: 2 }}>
-												<Button variant="contained">
+
+										{formik.values.reqType === 'social media content' && (
+											<Box sx={{ mt: 2 }}>
+												<Button
+													variant="outlined"
+													size="small"
+													sx={{ borderColor: '#00B67A', color: '#00B67A', mb: 1.5 }}
+												>
 													<a
 														target="_blank"
 														rel="noreferrer"
 														href="https://bit.ly/MISRequestForm"
-														style={{ color: 'inherit', textDecoration: 'none' }}
+														style={{ color: 'inherit', textDecoration: 'none', fontFamily: "'Poppins', sans-serif", fontSize: 13 }}
 													>
 														Download Info Request Form
 													</a>
 												</Button>
+												<Alert severity="info" sx={{ fontSize: 13 }}>
+													Download this form for posting and have it signed by the
+													persons involved. This form is required for approval.
+												</Alert>
 											</Box>
-											<Alert severity="info" sx={{ marginTop: 2 }}>
-												<Typography variant="subtitle2" component="p">
-													Kindly donwload this form for posting and have it
-													signed by the person/s involved/mentioned in the
-													signatures. This form is required for the Approval of
-													the Request.
-												</Typography>
-											</Alert>
-										</Box>
-									)}
-									<Typography
-										variant="subtitle1"
-										component="p"
-										sx={{ marginTop: 2 }}
+										)}
+									</Box>
+
+									{/* Description */}
+									<Box
+										sx={{
+											bgcolor: '#ffffff',
+											border: '1px solid #E2E8F0',
+											borderRadius: '8px',
+											boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
+											p: 3,
+										}}
 									>
-										Issue Description
-									</Typography>
-									<InputField
-										multiline
-										fullWidth
-										rows={5}
-										sx={{ marginTop: 1.5 }}
-										name="description"
-									/>
-									<Box sx={{ marginTop: 5 }}>
+										<Typography
+											sx={{
+												fontFamily: "'Poppins', sans-serif",
+												fontSize: 13,
+												fontWeight: 600,
+												color: '#1C1C1C',
+												mb: 2,
+											}}
+										>
+											Issue Description
+										</Typography>
+										<InputField
+											multiline
+											fullWidth
+											rows={5}
+											name="description"
+											label="Describe your issue in detail..."
+										/>
+									</Box>
+
+									<Box>
 										<CustomButton
 											variant="contained"
 											type="submit"
-											disabled={loading === true}
-											startIcon={
-												loading === true ? (
-													<CircularProgress size={20} color="primary" />
-												) : null
-											}
+											disabled={loading}
+											startIcon={loading ? <CircularProgress size={16} sx={{ color: 'white' }} /> : null}
 										>
 											Send Request
 										</CustomButton>
 									</Box>
 								</Box>
 							</Form>
-						);
-					}}
-				</Formik>
+						)}
+					</Formik>
+				</Box>
 			</Container>
+
 			<PopupDialog openPopup={openPopup} handleClose={handleClose}>
 				<Ticket
 					handleClose={handleClose}

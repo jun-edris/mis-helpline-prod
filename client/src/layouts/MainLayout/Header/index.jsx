@@ -112,6 +112,8 @@ const Header = () => {
 			{/* Actions */}
 			<Box sx={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
 				<Box
+					component="button"
+					aria-label="Notifications"
 					sx={{
 						width: 32,
 						height: 32,
@@ -122,6 +124,8 @@ const Header = () => {
 						cursor: 'pointer',
 						borderRadius: '8px',
 						position: 'relative',
+						border: 'none',
+						background: 'transparent',
 						'&:hover': { bgcolor: '#F5F6FA' },
 					}}
 				>

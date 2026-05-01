@@ -13,7 +13,7 @@ import InputField from '../../../components/common/InputField';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { loginSchema } from '../../../schema/schema';
-import { useContext, useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { publicFetch } from '../../../utils/fetch';
 import { SnackbarError, SnackbarSuccess } from '../../../components/SnackBars';
@@ -41,7 +41,6 @@ const LogoIcon = () => (
 );
 
 const Login = () => {
-	const _isMounted = useRef(true);
 	const history = useNavigate();
 	const [showPassword, setShowPassword] = useState(false);
 	const [success, setSuccess] = useState(false);
@@ -68,24 +67,14 @@ const Login = () => {
 			setSuccessMessage('');
 			setLoading(false);
 		}
-		return () => {
-			_isMounted.current = false;
-		};
 	};
 
 	useEffect(() => {
-		let isMounted = true;
-		if (isMounted) {
-			if (!authContext.isAuthenticated()) {
-				history('/', { replace: true });
-			} else {
-				history('/dashboard', { replace: true });
-			}
+		if (!authContext.isAuthenticated()) {
+			history('/', { replace: true });
+		} else {
+			history('/dashboard', { replace: true });
 		}
-		return () => {
-			isMounted = false;
-			_isMounted.current = false;
-		};
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
@@ -204,8 +193,8 @@ const Login = () => {
 												<InputAdornment position="end">
 													<IconButton
 														aria-label="toggle password visibility"
-														onClick={() => setShowPassword(!showPassword)}
-														onMouseDown={() => setShowPassword(!showPassword)}
+														onClick={() => setShowPassword(v => !v)}
+														onMouseDown={(e) => e.preventDefault()}
 														edge="end"
 													>
 														{showPassword ? <Visibility /> : <VisibilityOff />}

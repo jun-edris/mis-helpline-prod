@@ -60,11 +60,16 @@ const MyRequest = () => {
 		try {
 			getUserRequests();
 			const requestChannel = authContext?.pusher.subscribe('request');
-			requestChannel.bind('created', (newReq) => { setRecords((r) => [...r, newReq]); fetchContext.setRefreshKey((fetchContext.refreshKey = +1)); });
-			requestChannel.bind('approved', () => { getUserRequests(); fetchContext.setRefreshKey((fetchContext.refreshKey = +1)); });
-			requestChannel.bind('rejected', () => { getUserRequests(); fetchContext.setRefreshKey((fetchContext.refreshKey = +1)); });
-			requestChannel.bind('updated', () => { getUserRequests(); fetchContext.setRefreshKey((fetchContext.refreshKey = +1)); });
-			requestChannel.bind('deleted-req', () => { getUserRequests(); fetchContext.setRefreshKey(fetchContext.refreshKey + 1); });
+			const refresh = () => { getUserRequests(); fetchContext.setRefreshKey(k => k + 1); };
+			requestChannel.bind('created', refresh);
+			requestChannel.bind('approved', refresh);
+			requestChannel.bind('rejected', refresh);
+			requestChannel.bind('updated', refresh);
+			requestChannel.bind('deleted-req', refresh);
+			return () => {
+				requestChannel.unbind_all();
+				authContext.pusher.unsubscribe('request');
+			};
 		} catch (error) {}
 	}, [fetchContext.refreshKey]);
 
@@ -112,13 +117,21 @@ const MyRequest = () => {
 								</TableRow>
 							</TableHead>
 							<TableBody>
+								{records.length === 0 && (
+									<TableRow>
+										<TableCell colSpan={6} sx={{ textAlign: 'center', py: 4, color: '#64748B', fontFamily: "'Inter', sans-serif", fontSize: 13 }}>
+											No requests yet
+										</TableCell>
+									</TableRow>
+								)}
 								{records.map((record, index) => {
 									const date = new Date(record?.createdAt);
 									const month = String(date.getMonth() + 1).padStart(2, '0');
 									const day = String(date.getDate()).padStart(2, '0');
+									const year = date.getFullYear();
 									return (
 										<TableRow key={index} sx={{ '&:hover': { bgcolor: '#F5F6FA' } }}>
-											<TableCell>{`${month} - ${day}`}</TableCell>
+											<TableCell>{`${month}/${day}/${year}`}</TableCell>
 											<TableCell>
 												<Typography sx={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 12, color: '#1C1C1C' }}>
 													{record?.ticketNo}

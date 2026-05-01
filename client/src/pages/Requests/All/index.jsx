@@ -55,11 +55,16 @@ const All = () => {
 		try {
 			getRequests();
 			const requestChannel = authContext.pusher.subscribe('request');
-			requestChannel.bind('created', () => { getRequests(); fetchContext.setRefreshKey((fetchContext.refreshKey = +1)); });
-			requestChannel.bind('updated', () => { getRequests(); fetchContext.setRefreshKey((fetchContext.refreshKey = +1)); });
-			requestChannel.bind('approved', () => { getRequests(); fetchContext.setRefreshKey((fetchContext.refreshKey = +1)); });
-			requestChannel.bind('rejected', () => { getRequests(); fetchContext.setRefreshKey((fetchContext.refreshKey = +1)); });
-			requestChannel.bind('deleted-req', () => { getRequests(); fetchContext.setRefreshKey(fetchContext.refreshKey + 1); });
+			const refresh = () => { getRequests(); fetchContext.setRefreshKey(k => k + 1); };
+			requestChannel.bind('created', refresh);
+			requestChannel.bind('updated', refresh);
+			requestChannel.bind('approved', refresh);
+			requestChannel.bind('rejected', refresh);
+			requestChannel.bind('deleted-req', refresh);
+			return () => {
+				requestChannel.unbind_all();
+				authContext.pusher.unsubscribe('request');
+			};
 		} catch (error) {}
 	}, [fetchContext.refreshKey]);
 
@@ -107,14 +112,22 @@ const All = () => {
 							</TableRow>
 						</TableHead>
 						<TableBody>
+							{records?.length === 0 && (
+								<TableRow>
+									<TableCell colSpan={7} sx={{ textAlign: 'center', py: 4, color: '#64748B', fontFamily: "'Inter', sans-serif", fontSize: 13 }}>
+										No requests found
+									</TableCell>
+								</TableRow>
+							)}
 							{records?.map((record, index) => {
 								const date = new Date(record?.createdAt);
 								const month = String(date.getMonth() + 1).padStart(2, '0');
 								const day = String(date.getDate()).padStart(2, '0');
+								const year = date.getFullYear();
 
 								return (
 									<TableRow key={index} sx={{ '&:hover': { bgcolor: '#F5F6FA' } }}>
-										<TableCell>{`${month} - ${day}`}</TableCell>
+										<TableCell>{`${month}/${day}/${year}`}</TableCell>
 										<TableCell>
 											<Typography
 												sx={{

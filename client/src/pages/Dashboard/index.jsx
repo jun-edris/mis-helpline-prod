@@ -48,20 +48,24 @@ const Dashboard = () => {
 		},
 	};
 
-	const fetchCount = (url, setter) =>
-		fetchContext.authAxios.get(url).then(({ data }) => setter(data.requests)).catch(() => {});
-
 	useEffect(() => {
-		fetchCount('/requests/count', setReqCount);
-		fetchCount('/requests/count/approve', setApproveReqCount);
-		fetchCount('/requests/count/complete', setCompleteReqCount);
-		fetchCount('/requests/count/rejected', setRejectedReqCount);
-		fetchCount('/requests/count/pending', setPendingReqCount);
-		fetchCount('/requests/count/data', setDataCount);
-		fetchCount('/requests/count/software', setSoftwareCount);
-		fetchCount('/requests/count/hardware', setHardwareCount);
-		fetchCount('/requests/count/network', setNetworkCount);
-		fetchCount('/requests/count/other', setOtherCount);
+		const endpoints = [
+			['/requests/count', setReqCount],
+			['/requests/count/approve', setApproveReqCount],
+			['/requests/count/complete', setCompleteReqCount],
+			['/requests/count/rejected', setRejectedReqCount],
+			['/requests/count/pending', setPendingReqCount],
+			['/requests/count/data', setDataCount],
+			['/requests/count/software', setSoftwareCount],
+			['/requests/count/hardware', setHardwareCount],
+			['/requests/count/network', setNetworkCount],
+			['/requests/count/other', setOtherCount],
+		];
+		Promise.all(
+			endpoints.map(([url, setter]) =>
+				fetchContext.authAxios.get(url).then(({ data }) => setter(data.requests)).catch(() => {})
+			)
+		);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [fetchContext.refreshKey]);
 
