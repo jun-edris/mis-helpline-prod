@@ -1,7 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import {
 	Box,
-	Chip,
 	Paper,
 	Table,
 	TableBody,
@@ -18,6 +17,7 @@ import Approve from './../../../components/Request/Approve';
 import Reject from './../../../components/Request/Reject';
 import CustomButton from '../../../components/common/CustomButton';
 import PopupDialog from '../../../components/common/PopupDialog';
+import StatusBadge from '../../../components/common/StatusBadge';
 import { allRequest } from '../../../constants/table-headers';
 import { AuthContext } from '../../../context/AuthContext';
 import { FetchContext } from '../../../context/FetchContext';
@@ -33,12 +33,8 @@ const All = () => {
 	const getRequests = () => {
 		fetchContext.authAxios
 			.get(`/requests`)
-			.then(({ data }) => {
-				setRecords(data.requests);
-			})
-			.catch((error) => {
-				console.log(error);
-			});
+			.then(({ data }) => setRecords(data.requests))
+			.catch((error) => console.log(error));
 	};
 
 	const handleClose = () => {
@@ -46,73 +42,62 @@ const All = () => {
 		setOpenRejectPopup(false);
 	};
 
+	const getStatusLabel = (record) => {
+		if (record?.approved === false && record?.rejected === false) return 'In Evaluation';
+		if (record?.completed === true) return 'Completed';
+		if (record?.approved === true) return 'Approved';
+		if (record?.pending === true) return 'Pending';
+		if (record?.rejected === true) return 'Rejected';
+		return 'In Evaluation';
+	};
+
 	useEffect(() => {
 		try {
 			getRequests();
 			const requestChannel = authContext.pusher.subscribe('request');
-
-			requestChannel.bind('created', (newReq) => {
-				// setRecords((records) => [...records, newReq]);
-				getRequests();
-				fetchContext.setRefreshKey((fetchContext.refreshKey = +1));
-			});
-
-			requestChannel.bind('updated', (updateReq) => {
-				getRequests();
-				// setRecords(
-				// 	records.map((request) =>
-				// 		request._id === updateReq._id ? { ...records, updateReq } : request
-				// 	)
-				// );
-				fetchContext.setRefreshKey((fetchContext.refreshKey = +1));
-			});
-
-			requestChannel.bind('approved', (updateReq) => {
-				getRequests();
-				fetchContext.setRefreshKey((fetchContext.refreshKey = +1));
-			});
-
-			requestChannel.bind('rejected', (req) => {
-				getRequests();
-				// setRecords(
-				// 	records?.map((request) =>
-				// 		request._id === req._id ? { ...records, req } : request
-				// 	)
-				// );
-				fetchContext.setRefreshKey((fetchContext.refreshKey = +1));
-			});
-
-			requestChannel.bind('deleted-req', (deletedReq) => {
-				getRequests();
-				// setRecords(
-				// 	records.filter((req, index) => req._id !== deletedReq[index]._id)
-				// );
-				fetchContext.setRefreshKey(fetchContext.refreshKey + 1);
-			});
+			requestChannel.bind('created', () => { getRequests(); fetchContext.setRefreshKey((fetchContext.refreshKey = +1)); });
+			requestChannel.bind('updated', () => { getRequests(); fetchContext.setRefreshKey((fetchContext.refreshKey = +1)); });
+			requestChannel.bind('approved', () => { getRequests(); fetchContext.setRefreshKey((fetchContext.refreshKey = +1)); });
+			requestChannel.bind('rejected', () => { getRequests(); fetchContext.setRefreshKey((fetchContext.refreshKey = +1)); });
+			requestChannel.bind('deleted-req', () => { getRequests(); fetchContext.setRefreshKey(fetchContext.refreshKey + 1); });
 		} catch (error) {}
-
-		// return () => {
-		// 	requestChannel.unbind_all();
-		// 	requestChannel.unsubscribe('request');
-		// };
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [fetchContext.refreshKey]);
 
 	return (
 		<>
-			<Box
-				sx={{
-					display: 'flex',
-					justifyContent: 'space-between',
-					flexDirection: 'column',
-					gap: 2,
-				}}
-			>
-				<Typography variant="h6" component="h2">
-					List of All Request
-				</Typography>
+			<Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+				<Box>
+					<Typography
+						sx={{
+							fontFamily: "'Poppins', sans-serif",
+							fontSize: 26,
+							fontWeight: 700,
+							color: '#1C1C1C',
+							lineHeight: 1.2,
+						}}
+					>
+						All Requests
+					</Typography>
+					<Typography
+						sx={{
+							fontFamily: "'Inter', sans-serif",
+							fontSize: 14,
+							color: '#64748B',
+							mt: 0.5,
+						}}
+					>
+						Review and manage all submitted support tickets
+					</Typography>
+				</Box>
 
-				<TableContainer component={Paper}>
+				<TableContainer
+					component={Paper}
+					sx={{
+						border: '1px solid #E2E8F0',
+						borderRadius: '8px',
+						boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
+					}}
+				>
 					<Table>
 						<TableHead>
 							<TableRow>
@@ -124,70 +109,58 @@ const All = () => {
 						<TableBody>
 							{records?.map((record, index) => {
 								const date = new Date(record?.createdAt);
-								const monthWithoutZero = date.getMonth() + 1;
-								const month =
-									monthWithoutZero < 10
-										? `0${monthWithoutZero}`
-										: monthWithoutZero;
-								const dayWithoutZero = date.getDate();
-								const day =
-									dayWithoutZero < 10 ? `0${dayWithoutZero}` : dayWithoutZero;
+								const month = String(date.getMonth() + 1).padStart(2, '0');
+								const day = String(date.getDate()).padStart(2, '0');
 
 								return (
-									<TableRow key={index}>
+									<TableRow key={index} sx={{ '&:hover': { bgcolor: '#F5F6FA' } }}>
 										<TableCell>{`${month} - ${day}`}</TableCell>
-										<TableCell>{record?.ticketNo}</TableCell>
+										<TableCell>
+											<Typography
+												sx={{
+													fontFamily: "'IBM Plex Mono', monospace",
+													fontSize: 12,
+													color: '#1C1C1C',
+												}}
+											>
+												{record?.ticketNo}
+											</Typography>
+										</TableCell>
 										<TableCell>{`${record?.user?.firstName} ${record?.user?.lastName}`}</TableCell>
 										<TableCell>{record?.title}</TableCell>
 										<TableCell>{record?.reqType}</TableCell>
 										<TableCell>
-											<Box sx={{ display: 'flex', gap: 0.5 }}>
-												{record?.approved === false &&
-													record?.rejected === false && (
-														<Chip label="In Evaluation" color="warning" />
-													)}
-												{record?.approved === true && (
-													<Chip label="Approved" color="success" />
-												)}
-												{record?.completed === true && (
-													<Chip label="Completed" color="success" />
-												)}
-												{record?.pending === true && (
-													<Chip label="Pending" color="secondary" />
-												)}
-												{record?.approved === false &&
-													record?.rejected === true && (
-														<Chip label="Rejected" color="error" />
-													)}
-											</Box>
+											<StatusBadge label={getStatusLabel(record)} />
 										</TableCell>
 										{!record?.approved && !record?.rejected ? (
-											<TableCell sx={{ display: 'flex', gap: 2 }}>
-												<CustomButton
-													color="success"
-													startIcon={<CheckCircleIcon />}
-													onClick={() => {
-														// console.log(record?._id);
-														setSelectedRecord(record);
-														setOpenPopup(true);
-													}}
-												>
-													Approve
-												</CustomButton>
-												<CustomButton
-													color="error"
-													startIcon={<CancelIcon />}
-													onClick={() => {
-														// console.log(record?._id);
-														setSelectedRecord(record);
-														setOpenRejectPopup(true);
-													}}
-												>
-													Reject
-												</CustomButton>
+											<TableCell>
+												<Box sx={{ display: 'flex', gap: 1 }}>
+													<CustomButton
+														color="success"
+														size="small"
+														startIcon={<CheckCircleIcon />}
+														onClick={() => {
+															setSelectedRecord(record);
+															setOpenPopup(true);
+														}}
+													>
+														Approve
+													</CustomButton>
+													<CustomButton
+														color="error"
+														size="small"
+														startIcon={<CancelIcon />}
+														onClick={() => {
+															setSelectedRecord(record);
+															setOpenRejectPopup(true);
+														}}
+													>
+														Reject
+													</CustomButton>
+												</Box>
 											</TableCell>
 										) : (
-											<TableCell></TableCell>
+											<TableCell />
 										)}
 									</TableRow>
 								);
@@ -196,15 +169,16 @@ const All = () => {
 					</Table>
 				</TableContainer>
 			</Box>
+
 			<PopupDialog
-				title="By Clicking Submit, You are approving the following request"
+				title="By clicking Submit, you are approving the following request"
 				openPopup={openPopup}
 				handleClose={handleClose}
 			>
 				<Approve record={selectedRecord} handleClose={handleClose} />
 			</PopupDialog>
 			<PopupDialog
-				title="Why Reject this Request?"
+				title="Why reject this request?"
 				openPopup={openRejectPopup}
 				handleClose={handleClose}
 			>

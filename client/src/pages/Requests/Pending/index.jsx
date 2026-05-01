@@ -13,6 +13,7 @@ import { useContext, useEffect, useState } from 'react';
 import { pendingRequest } from '../../../constants/table-headers';
 import { AuthContext } from '../../../context/AuthContext';
 import { FetchContext } from '../../../context/FetchContext';
+import StatusBadge from '../../../components/common/StatusBadge';
 
 const Pending = () => {
 	const fetchContext = useContext(FetchContext);
@@ -66,19 +67,17 @@ const Pending = () => {
 	}, [fetchContext.refreshKey]);
 	return (
 		<>
-			<Box
-				sx={{
-					display: 'flex',
-					justifyContent: 'space-between',
-					flexDirection: 'column',
-					gap: 2,
-				}}
-			>
-				<Typography variant="h6" component="h2">
-					List of All Pending
-				</Typography>
+			<Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+				<Box>
+					<Typography sx={{ fontFamily: "'Poppins', sans-serif", fontSize: 26, fontWeight: 700, color: '#1C1C1C' }}>
+						Pending Requests
+					</Typography>
+					<Typography sx={{ fontFamily: "'Inter', sans-serif", fontSize: 14, color: '#64748B', mt: 0.5 }}>
+						Requests that are currently assigned and in progress
+					</Typography>
+				</Box>
 
-				<TableContainer component={Paper}>
+				<TableContainer component={Paper} sx={{ border: '1px solid #E2E8F0', borderRadius: '8px', boxShadow: '0 1px 4px rgba(0,0,0,0.08)' }}>
 					<Table>
 						<TableHead>
 							<TableRow>
@@ -90,15 +89,22 @@ const Pending = () => {
 						<TableBody>
 							{records?.map((record, index) => {
 								const date = new Date(record?.createdAt);
-								const month = date.getMonth() + 1;
-								const day = date.getDate();
+								const month = String(date.getMonth() + 1).padStart(2, '0');
+								const day = String(date.getDate()).padStart(2, '0');
 								return (
-									<TableRow key={index}>
+									<TableRow key={index} sx={{ '&:hover': { bgcolor: '#F5F6FA' } }}>
 										<TableCell>{`${month} - ${day}`}</TableCell>
-										<TableCell>{record?.ticketNo}</TableCell>
+										<TableCell>
+											<Typography sx={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 12, color: '#1C1C1C' }}>
+												{record?.ticketNo}
+											</Typography>
+										</TableCell>
 										<TableCell>{`${record?.user?.firstName} ${record?.user?.lastName}`}</TableCell>
 										<TableCell>{record?.title}</TableCell>
 										<TableCell>{record?.reqType}</TableCell>
+										<TableCell>
+											<StatusBadge label="Pending" />
+										</TableCell>
 										<TableCell>{`${record?.personnel?.firstName} ${record?.personnel?.lastName}`}</TableCell>
 									</TableRow>
 								);

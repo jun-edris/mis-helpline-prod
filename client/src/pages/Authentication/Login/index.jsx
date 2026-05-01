@@ -1,7 +1,6 @@
 import {
 	Box,
 	Button,
-	Container,
 	FormControl,
 	IconButton,
 	InputAdornment,
@@ -15,13 +14,31 @@ import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { loginSchema } from '../../../schema/schema';
 import { useContext, useEffect, useRef, useState } from 'react';
-import { blue } from '@mui/material/colors';
 import { Link } from 'react-router-dom';
 import { publicFetch } from '../../../utils/fetch';
 import { SnackbarError, SnackbarSuccess } from '../../../components/SnackBars';
 import { AuthContext } from '../../../context/AuthContext';
 
-const linkColor = blue[400];
+const LogoIcon = () => (
+	<Box
+		sx={{
+			width: 40,
+			height: 40,
+			bgcolor: '#00B67A',
+			borderRadius: '10px',
+			display: 'flex',
+			alignItems: 'center',
+			justifyContent: 'center',
+		}}
+	>
+		<svg width="22" height="22" viewBox="0 0 18 18" fill="none">
+			<rect x="2" y="2" width="6" height="6" rx="1.2" fill="white" />
+			<rect x="10" y="2" width="6" height="6" rx="1.2" fill="white" />
+			<rect x="2" y="10" width="6" height="6" rx="1.2" fill="white" />
+			<rect x="10" y="10" width="6" height="6" rx="1.2" fill="rgba(255,255,255,0.5)" />
+		</svg>
+	</Box>
+);
 
 const Login = () => {
 	const _isMounted = useRef(true);
@@ -44,7 +61,6 @@ const Login = () => {
 			setErrorMessage('');
 			resetForm(true);
 			setLoading(false);
-			// const response = await
 		} catch (e) {
 			const { data } = e.response;
 			setErrorMessage(data.message);
@@ -66,7 +82,6 @@ const Login = () => {
 				history('/dashboard', { replace: true });
 			}
 		}
-
 		return () => {
 			isMounted = false;
 			_isMounted.current = false;
@@ -90,36 +105,86 @@ const Login = () => {
 					errorMessage={errorMessage}
 				/>
 			)}
-			<Container component="main" maxWidth="xs">
+
+			<Box
+				sx={{
+					minHeight: '100vh',
+					bgcolor: '#F5F6FA',
+					display: 'flex',
+					alignItems: 'center',
+					justifyContent: 'center',
+					px: 2,
+				}}
+			>
 				<Box
 					sx={{
-						marginTop: 20,
-						display: 'flex',
-						flexDirection: 'column',
-						alignItems: 'center',
+						width: '100%',
+						maxWidth: 420,
+						bgcolor: '#ffffff',
+						border: '1px solid #E2E8F0',
+						borderRadius: '12px',
+						boxShadow: '0 4px 24px rgba(0,0,0,0.08)',
+						p: 4,
 					}}
 				>
-					<Typography component="h1" variant="h4">
-						MIS HELP DESK
-					</Typography>
-					<Typography component="h2" variant="h5" sx={{ marginTop: 4 }}>
-						Sign in
-					</Typography>
-					<Formik
-						initialValues={{
-							email: '',
-							password: '',
-						}}
-						validationSchema={loginSchema}
-						onSubmit={(values, { resetForm }) => {
-							login(values, resetForm);
+					{/* Logo + brand */}
+					<Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 4 }}>
+						<LogoIcon />
+						<Box>
+							<Typography
+								sx={{
+									fontFamily: "'Poppins', sans-serif",
+									fontWeight: 700,
+									fontSize: 18,
+									color: '#081021',
+									lineHeight: 1.2,
+								}}
+							>
+								MIS Helpdesk
+							</Typography>
+							<Typography
+								sx={{
+									fontFamily: "'Inter', sans-serif",
+									fontSize: 12,
+									color: '#64748B',
+								}}
+							>
+								IT Support Ticketing System
+							</Typography>
+						</Box>
+					</Box>
+
+					<Typography
+						sx={{
+							fontFamily: "'Poppins', sans-serif",
+							fontWeight: 600,
+							fontSize: 22,
+							color: '#1C1C1C',
+							mb: 0.5,
 						}}
 					>
+						Sign in
+					</Typography>
+					<Typography
+						sx={{
+							fontFamily: "'Inter', sans-serif",
+							fontSize: 13,
+							color: '#64748B',
+							mb: 3,
+						}}
+					>
+						Use your BISU institutional email
+					</Typography>
+
+					<Formik
+						initialValues={{ email: '', password: '' }}
+						validationSchema={loginSchema}
+						onSubmit={(values, { resetForm }) => login(values, resetForm)}
+					>
 						{() => (
-							<Form autoComplete="off" noValidate sx={{ mt: 1 }}>
-								<FormControl fullWidth>
+							<Form autoComplete="off" noValidate>
+								<FormControl fullWidth sx={{ mb: 2 }}>
 									<InputField
-										margin="normal"
 										required
 										fullWidth
 										id="email"
@@ -128,7 +193,7 @@ const Login = () => {
 										autoComplete="off"
 									/>
 								</FormControl>
-								<FormControl fullWidth>
+								<FormControl fullWidth sx={{ mb: 3 }}>
 									<InputField
 										name="password"
 										type={showPassword ? 'text' : 'password'}
@@ -155,31 +220,35 @@ const Login = () => {
 									type="submit"
 									fullWidth
 									variant="contained"
-									sx={{ mt: 3, mb: 2 }}
-									disabled={loading === true}
-									startIcon={
-										loading === true ? (
-											<CircularProgress size={20} color="primary" />
-										) : null
-									}
+									disabled={loading}
+									startIcon={loading ? <CircularProgress size={16} sx={{ color: 'white' }} /> : null}
+									sx={{ py: 1.2 }}
 								>
 									Sign In
 								</Button>
 							</Form>
 						)}
 					</Formik>
-					<Box>
-						<Typography variant="body2" sx={{ color: linkColor }}>
+
+					<Box sx={{ mt: 3, textAlign: 'center' }}>
+						<Typography
+							sx={{
+								fontFamily: "'Inter', sans-serif",
+								fontSize: 13,
+								color: '#64748B',
+							}}
+						>
+							No account yet?{' '}
 							<Link
 								to="/signup"
-								style={{ color: 'inherit', textDecoration: 'none' }}
+								style={{ color: '#00B67A', textDecoration: 'none', fontWeight: 500 }}
 							>
-								No account yet? Sign up here
+								Sign up here
 							</Link>
 						</Typography>
 					</Box>
 				</Box>
-			</Container>
+			</Box>
 		</>
 	);
 };

@@ -5,58 +5,93 @@ import ReqCard from '../../components/Home/ReqCard';
 import reqCardData from '../../constants/reqCardContent/reqCard-data';
 import { Link } from 'react-router-dom';
 import CustomButton from '../../components/common/CustomButton';
-import { useTheme } from '@mui/material/styles';
-import useMediaQuery from '@mui/material/useMediaQuery';
-import Devs from '../../components/Devs';
 import Footer from '../../components/Footer';
 
 const Home = () => {
-	const theme = useTheme();
-	const matchesXs = useMediaQuery(theme.breakpoints.down('sm'));
 	return (
-		<div>
+		<Box sx={{ minHeight: '100vh', bgcolor: '#F5F6FA', display: 'flex', flexDirection: 'column' }}>
 			<Header />
+
+			{/* Hero */}
 			<Box
 				sx={{
-					padding: 3,
+					bgcolor: '#ffffff',
+					borderBottom: '1px solid #E2E8F0',
+					py: 8,
+					px: 3,
 					display: 'flex',
 					flexDirection: 'column',
 					alignItems: 'center',
+					textAlign: 'center',
 				}}
 			>
-				<img src="50426.jpg" alt="MIS" width="400" />
-				<Typography
-					variant={matchesXs ? 'h4' : 'h2'}
-					component="h3"
+				<Box
 					sx={{
-						textTransform: 'uppercase',
-						fontWeight: 600,
-						color: '#192a56',
+						width: 64,
+						height: 64,
+						bgcolor: '#00B67A',
+						borderRadius: '16px',
+						display: 'flex',
+						alignItems: 'center',
+						justifyContent: 'center',
+						mb: 3,
 					}}
 				>
-					how may i help you?
-				</Typography>
-				<Link
-					to="/request"
-					style={{ color: 'inherit', textDecoration: 'none' }}
+					<svg width="34" height="34" viewBox="0 0 18 18" fill="none">
+						<rect x="2" y="2" width="6" height="6" rx="1.2" fill="white" />
+						<rect x="10" y="2" width="6" height="6" rx="1.2" fill="white" />
+						<rect x="2" y="10" width="6" height="6" rx="1.2" fill="white" />
+						<rect x="10" y="10" width="6" height="6" rx="1.2" fill="rgba(255,255,255,0.5)" />
+					</svg>
+				</Box>
+				<Typography
+					sx={{
+						fontFamily: "'Poppins', sans-serif",
+						fontSize: { xs: 28, md: 40 },
+						fontWeight: 700,
+						color: '#081021',
+						mb: 1,
+					}}
 				>
-					<CustomButton variant="contained">see my requests</CustomButton>
+					How may I help you?
+				</Typography>
+				<Typography
+					sx={{
+						fontFamily: "'Inter', sans-serif",
+						fontSize: 16,
+						color: '#64748B',
+						mb: 4,
+						maxWidth: 480,
+					}}
+				>
+					Submit and track your IT support requests with the MIS Helpdesk system.
+				</Typography>
+				<Link to="/request" style={{ textDecoration: 'none' }}>
+					<CustomButton variant="contained" size="large">
+						View My Requests
+					</CustomButton>
 				</Link>
 			</Box>
-			<Box sx={{ marginTop: 5, marginBottom: 7 }}>
-				<Typography
-					variant="body1"
-					component="p"
-					sx={{ marginBottom: 2, textAlign: 'center' }}
-				>
-					Choose any of the following for your request
-				</Typography>
+
+			{/* Request type cards */}
+			<Box sx={{ py: 6, flex: 1 }}>
 				<Container maxWidth="lg">
-					<Grid container direction="row" spacing={2} alignItems="stretch">
+					<Typography
+						sx={{
+							fontFamily: "'Poppins', sans-serif",
+							fontSize: 14,
+							fontWeight: 500,
+							color: '#64748B',
+							textAlign: 'center',
+							mb: 3,
+						}}
+					>
+						Choose a request type to get started
+					</Typography>
+					<Grid container spacing={2} alignItems="stretch">
 						{reqCardData.map((reqData, index) => (
 							<Grid key={index} item xs={12} sm={6} md={4} lg>
 								<ReqCard
-									key={index}
 									title={reqData?.title}
 									icon={reqData?.icon}
 									content={reqData?.content}
@@ -67,13 +102,9 @@ const Home = () => {
 					</Grid>
 				</Container>
 			</Box>
-			<Box mt={30}>
-				<Container>
-					<Devs />
-				</Container>
-			</Box>
+
 			<Footer />
-		</div>
+		</Box>
 	);
 };
 

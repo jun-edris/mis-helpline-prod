@@ -1,333 +1,246 @@
-import { Box, Grid, Paper, Typography } from '@mui/material';
-import {
-	blue,
-	red,
-	teal,
-	purple,
-	pink,
-	green,
-	deepPurple,
-	cyan,
-	lightGreen,
-} from '@mui/material/colors';
+import { Box, Grid, Typography } from '@mui/material';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import PendingActionsIcon from '@mui/icons-material/PendingActions';
 import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
 import AssignmentLateIcon from '@mui/icons-material/AssignmentLate';
 import FactCheckIcon from '@mui/icons-material/FactCheck';
+import StorageIcon from '@mui/icons-material/Storage';
+import LaptopIcon from '@mui/icons-material/Laptop';
+import MemoryIcon from '@mui/icons-material/Memory';
+import WifiIcon from '@mui/icons-material/Wifi';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import Chart from 'react-apexcharts';
 import { useContext, useEffect, useState } from 'react';
 import { FetchContext } from '../../context/FetchContext';
 import DisplayCountPaper from '../../components/common/DisplayCountPaper';
-import Footer from '../../components/Footer';
-import Devs from '../../components/Devs';
-
-const pendingColor = blue[900];
-const dataColor = teal[600];
-const softwareColor = red[700];
-const hardwareColor = purple[900];
-const networkColor = pink[400];
-const otherColor = deepPurple[700];
-const requestColor = cyan[700];
-const approveColor = lightGreen[700];
-const completeColor = green[700];
-const rejectColor = red[900];
 
 const Dashboard = () => {
 	const fetchContext = useContext(FetchContext);
-	const [counts, setCounts] = useState({
-		total: 0,
-		approved: 0,
-		completed: 0,
-		rejected: 0,
-		pending: 0,
-		data: 0,
-		software: 0,
-		hardware: 0,
-		network: 0,
-		other: 0,
-	});
+	const [reqCount, setReqCount] = useState(0);
+	const [approveReqCount, setApproveReqCount] = useState(0);
+	const [completeReqCount, setCompleteReqCount] = useState(0);
+	const [rejectedReqCount, setRejectedReqCount] = useState(0);
+	const [pendingReqCount, setPendingReqCount] = useState(0);
+	const [dataCount, setDataCount] = useState(0);
+	const [softwareCount, setSoftwareCount] = useState(0);
+	const [hardwareCount, setHardwareCount] = useState(0);
+	const [networkCount, setNetworkCount] = useState(0);
+	const [otherCount, setOtherCount] = useState(0);
 
 	const chart = {
-		series: [
-			{
-				data: [
-					counts.data,
-					counts.software,
-					counts.hardware,
-					counts.network,
-					counts.other,
-				],
-			},
-		],
+		series: [{ name: 'Requests', data: [dataCount, softwareCount, hardwareCount, networkCount, otherCount] }],
 		options: {
-			title: {
-				style: {
-					color: '#ffffff',
-				},
-			},
-			chart: {
-				type: 'line',
-			},
+			chart: { type: 'bar', toolbar: { show: false }, fontFamily: "'Inter', sans-serif" },
+			colors: ['#00B67A'],
 			plotOptions: {
-				bar: {
-					borderRadius: 4,
-					columnWidth: '20%',
-				},
+				bar: { borderRadius: 4, columnWidth: '40%' },
 			},
-			dataLabels: {
-				enabled: true,
-			},
+			dataLabels: { enabled: false },
+			grid: { borderColor: '#E2E8F0', strokeDashArray: 4 },
 			xaxis: {
-				categories: [
-					'Data Request',
-					'Software Request',
-					'Hardware Request',
-					'Network Request',
-					'Other Request',
-				],
+				categories: ['Data', 'Software', 'Hardware', 'Network', 'Other'],
+				axisBorder: { show: false },
+				axisTicks: { show: false },
+				labels: { style: { colors: '#64748B', fontSize: '12px' } },
 			},
+			yaxis: { labels: { style: { colors: '#64748B', fontSize: '12px' } } },
+			tooltip: { theme: 'light' },
 		},
 	};
 
+	const fetchCount = (url, setter) =>
+		fetchContext.authAxios.get(url).then(({ data }) => setter(data.requests)).catch(() => {});
+
 	useEffect(() => {
-		fetchContext.authAxios
-			.get('/requests/counts')
-			.then(({ data }) => setCounts(data))
-			.catch((error) => console.log(error));
+		fetchCount('/requests/count', setReqCount);
+		fetchCount('/requests/count/approve', setApproveReqCount);
+		fetchCount('/requests/count/complete', setCompleteReqCount);
+		fetchCount('/requests/count/rejected', setRejectedReqCount);
+		fetchCount('/requests/count/pending', setPendingReqCount);
+		fetchCount('/requests/count/data', setDataCount);
+		fetchCount('/requests/count/software', setSoftwareCount);
+		fetchCount('/requests/count/hardware', setHardwareCount);
+		fetchCount('/requests/count/network', setNetworkCount);
+		fetchCount('/requests/count/other', setOtherCount);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [fetchContext.refreshKey]);
 
 	return (
-		<div>
+		<Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+			{/* Page header */}
 			<Box>
-				<Typography variant="h6">Pending Requests</Typography>
-				<Box mt={2}>
-					<Grid container direction="row" alignItems="stretch" spacing={2}>
-						<Grid item xs={12} sm={12} md={12} lg={4}>
-							<DisplayCountPaper
-								pending="true"
-								title="Pending Requests"
-								count={counts.pending}
-								icon={
-									<PendingActionsIcon
-										sx={{
-											position: 'absolute',
-											top: 0,
-											right: -40,
-											opacity: 0.12,
-											width: 190,
-											height: 190,
-										}}
-									/>
-								}
-								bgColor={pendingColor}
-							/>
-						</Grid>
-						<Grid item xs={12} sm={12} md={12} lg={8}>
-							<Grid container spacing={2}>
-								<Grid item xs={12} sm={12} md={4}>
-									<DisplayCountPaper
-										title="Data Requests"
-										count={counts.data}
-										icon={
-											<PendingActionsIcon
-												sx={{
-													position: 'absolute',
-													top: 0,
-													right: -24,
-													opacity: 0.12,
-													width: 120,
-													height: 120,
-												}}
-											/>
-										}
-										bgColor={dataColor}
-									/>
-								</Grid>
-								<Grid item xs={12} sm={12} md={4}>
-									<DisplayCountPaper
-										title="Software Requests"
-										count={counts.software}
-										icon={
-											<PendingActionsIcon
-												sx={{
-													position: 'absolute',
-													top: 0,
-													right: -24,
-													opacity: 0.12,
-													width: 120,
-													height: 120,
-												}}
-											/>
-										}
-										bgColor={softwareColor}
-									/>
-								</Grid>
-								<Grid item xs={12} sm={12} md={4}>
-									<DisplayCountPaper
-										title="Hardware Requests"
-										count={counts.hardware}
-										icon={
-											<PendingActionsIcon
-												sx={{
-													position: 'absolute',
-													top: 0,
-													right: -24,
-													opacity: 0.12,
-													width: 120,
-													height: 120,
-												}}
-											/>
-										}
-										bgColor={hardwareColor}
-									/>
-								</Grid>
-								<Grid item xs={12} sm={12} md={4}>
-									<DisplayCountPaper
-										title="Network Requests"
-										count={counts.network}
-										icon={
-											<PendingActionsIcon
-												sx={{
-													position: 'absolute',
-													top: 0,
-													right: -24,
-													opacity: 0.12,
-													width: 120,
-													height: 120,
-												}}
-											/>
-										}
-										bgColor={networkColor}
-									/>
-								</Grid>
-								<Grid item xs={12} sm={12} md={4}>
-									<DisplayCountPaper
-										title="Other Requests"
-										count={counts.other}
-										icon={
-											<PendingActionsIcon
-												sx={{
-													position: 'absolute',
-													top: 0,
-													right: -24,
-													opacity: 0.12,
-													width: 120,
-													height: 120,
-												}}
-											/>
-										}
-										bgColor={otherColor}
-									/>
-								</Grid>
-							</Grid>
-						</Grid>
-					</Grid>
-				</Box>
-				<Box mt={7}>
-					<Typography variant="h6">Requests</Typography>
-					<Box mt={2}>
-						<Grid container spacing={2}>
-							<Grid item xs={12} sm>
-								<DisplayCountPaper
-									title="All Requests"
-									count={counts.total}
-									icon={
-										<AssignmentIcon
-											sx={{
-												position: 'absolute',
-												top: 0,
-												right: -24,
-												opacity: 0.12,
-												width: 120,
-												height: 120,
-											}}
-										/>
-									}
-									bgColor={requestColor}
-								/>
-							</Grid>
-							<Grid item xs={12} sm>
-								<DisplayCountPaper
-									title="Approved Requests"
-									count={counts.approved}
-									icon={
-										<FactCheckIcon
-											sx={{
-												position: 'absolute',
-												top: 0,
-												right: -24,
-												opacity: 0.12,
-												width: 120,
-												height: 120,
-											}}
-										/>
-									}
-									bgColor={approveColor}
-								/>
-							</Grid>
-							<Grid item xs={12} sm>
-								<DisplayCountPaper
-									title="Completed Requests"
-									count={counts.completed}
-									icon={
-										<AssignmentTurnedInIcon
-											sx={{
-												position: 'absolute',
-												top: 0,
-												right: -24,
-												opacity: 0.12,
-												width: 120,
-												height: 120,
-											}}
-										/>
-									}
-									bgColor={completeColor}
-								/>
-							</Grid>
-							<Grid item xs={12} sm>
-								<DisplayCountPaper
-									title="Rejected Requests"
-									count={counts.rejected}
-									icon={
-										<AssignmentLateIcon
-											sx={{
-												position: 'absolute',
-												top: 0,
-												right: -24,
-												opacity: 0.12,
-												width: 120,
-												height: 120,
-											}}
-										/>
-									}
-									bgColor={rejectColor}
-								/>
-							</Grid>
-						</Grid>
-					</Box>
-				</Box>
-				<Box mt={7} mb={10}>
-					<Typography variant="h6" component="h4">
-						Request Turnout
-					</Typography>
-					<Paper elevation={8}>
-						<Box mt={3} p={3}>
-							<Chart
-								options={chart.options}
-								series={chart.series}
-								type="bar"
-								height={350}
-							/>
-						</Box>
-					</Paper>
-				</Box>
-				<Box mt={7}>
-					<Devs />
-				</Box>
+				<Typography
+					sx={{
+						fontFamily: "'Poppins', sans-serif",
+						fontSize: 26,
+						fontWeight: 700,
+						color: '#1C1C1C',
+						lineHeight: 1.2,
+					}}
+				>
+					Admin Dashboard
+				</Typography>
+				<Typography
+					sx={{
+						fontFamily: "'Inter', sans-serif",
+						fontSize: 14,
+						color: '#64748B',
+						mt: 0.5,
+					}}
+				>
+					Monitor your support ticket system with real-time data
+				</Typography>
 			</Box>
-			<Footer />
-		</div>
+
+			{/* Summary stat cards */}
+			<Grid container spacing={2}>
+				<Grid item xs={12} sm={6} md={3}>
+					<DisplayCountPaper
+						title="All Requests"
+						count={reqCount}
+						accent="#00B67A"
+						icon={<AssignmentIcon />}
+					/>
+				</Grid>
+				<Grid item xs={12} sm={6} md={3}>
+					<DisplayCountPaper
+						title="Approved"
+						count={approveReqCount}
+						accent="#4F46E5"
+						icon={<FactCheckIcon />}
+					/>
+				</Grid>
+				<Grid item xs={12} sm={6} md={3}>
+					<DisplayCountPaper
+						title="Completed"
+						count={completeReqCount}
+						accent="#1F8463"
+						icon={<AssignmentTurnedInIcon />}
+					/>
+				</Grid>
+				<Grid item xs={12} sm={6} md={3}>
+					<DisplayCountPaper
+						title="Rejected"
+						count={rejectedReqCount}
+						accent="#FF3B30"
+						icon={<AssignmentLateIcon />}
+					/>
+				</Grid>
+			</Grid>
+
+			{/* Pending highlight + type breakdown */}
+			<Grid container spacing={2} alignItems="stretch">
+				<Grid item xs={12} md={4}>
+					<Box
+						sx={{
+							bgcolor: '#00B67A',
+							borderRadius: '8px',
+							p: 3,
+							height: '100%',
+							position: 'relative',
+							overflow: 'hidden',
+							display: 'flex',
+							flexDirection: 'column',
+							justifyContent: 'flex-end',
+							minHeight: 160,
+						}}
+					>
+						<PendingActionsIcon
+							sx={{
+								position: 'absolute',
+								top: -10,
+								right: -10,
+								opacity: 0.12,
+								width: 140,
+								height: 140,
+								color: 'white',
+							}}
+						/>
+						<Typography
+							sx={{
+								fontFamily: "'Exo 2', sans-serif",
+								fontSize: 52,
+								fontWeight: 400,
+								color: '#ffffff',
+								lineHeight: 1,
+							}}
+						>
+							{pendingReqCount}
+						</Typography>
+						<Typography
+							sx={{
+								fontFamily: "'Poppins', sans-serif",
+								fontSize: 14,
+								fontWeight: 500,
+								color: 'rgba(255,255,255,0.85)',
+								mt: 0.5,
+							}}
+						>
+							Pending Requests
+						</Typography>
+					</Box>
+				</Grid>
+				<Grid item xs={12} md={8}>
+					<Grid container spacing={2}>
+						{[
+							{ title: 'Data Requests', count: dataCount, accent: '#F97316', icon: <StorageIcon /> },
+							{ title: 'Software Requests', count: softwareCount, accent: '#4F46E5', icon: <LaptopIcon /> },
+							{ title: 'Hardware Requests', count: hardwareCount, accent: '#F5A623', icon: <MemoryIcon /> },
+							{ title: 'Network Requests', count: networkCount, accent: '#00B67A', icon: <WifiIcon /> },
+							{ title: 'Other Requests', count: otherCount, accent: '#64748B', icon: <HelpOutlineIcon /> },
+						].map((item) => (
+							<Grid item xs={12} sm={6} key={item.title}>
+								<DisplayCountPaper
+									title={item.title}
+									count={item.count}
+									accent={item.accent}
+									icon={item.icon}
+								/>
+							</Grid>
+						))}
+					</Grid>
+				</Grid>
+			</Grid>
+
+			{/* Chart */}
+			<Box
+				sx={{
+					bgcolor: '#ffffff',
+					border: '1px solid #E2E8F0',
+					borderRadius: '8px',
+					boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
+					p: 3,
+				}}
+			>
+				<Typography
+					sx={{
+						fontFamily: "'Poppins', sans-serif",
+						fontSize: 14,
+						fontWeight: 600,
+						color: '#1C1C1C',
+						mb: 0.25,
+					}}
+				>
+					Request Volume by Type
+				</Typography>
+				<Typography
+					sx={{
+						fontFamily: "'Inter', sans-serif",
+						fontSize: 12,
+						color: '#64748B',
+						mb: 2,
+					}}
+				>
+					Total submitted requests per category
+				</Typography>
+				<Chart
+					options={chart.options}
+					series={chart.series}
+					type="bar"
+					height={240}
+				/>
+			</Box>
+		</Box>
 	);
 };
 
